@@ -1,0 +1,94 @@
+.details {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 2fr 2fr;
+    grid-gap: 20px;
+}
+
+.details .adminList,
+.details .userList {
+    position: relative;
+    display: grid;
+    max-height: 300px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+}
+
+.details .adminList .cardHeader,
+.details .userList .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cardHeader h2 {
+    font-weight: 600;
+    color: var(--blue);
+}
+
+.cardHeader .btn {
+    position: relative;
+    padding: 5px 10px;
+    background: var(--blue);
+    text-decoration: none;
+    color: var(--white);
+    border-radius: 6px;   
+}
+
+.details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.details table thead td {
+    font-weight: 600;;
+}
+
+.details .adminList table tr,
+.details .userList table tr {
+    color: var(--black);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.details .adminList table tr:last-child,
+.details .userList table tr:last-child {
+    border-bottom: none;
+}
+
+.details .adminList table tbody tr:hover,
+.details .userList table tbody tr:hover {
+    background: var(--blue);
+    color: var(--white);
+}
+
+.details .adminList table tr td,
+.details .userList table tr td {
+    padding: 10px;
+}
+
+.details table tbody .action .icon-btn {
+    cursor: pointer;
+    padding: 5px;
+    gap: 10px;
+}
+
+.icon-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+    background-color: var(--blue);
+    color: var(--white);
+    transform: translateY(-2px);
+}

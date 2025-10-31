@@ -1,0 +1,12 @@
+/* Row action icons */
+.action .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.05);
+  margin-right: 6px;
+}
+.action .icon-btn:hover { filter: brightness(.95); }
+.action .icon-btn.danger { background: rgba(197,42,42,.12); }

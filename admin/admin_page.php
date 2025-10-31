@@ -15,7 +15,7 @@ if (!isset($_SESSION['email'])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Page</title>
-        <link rel="stylesheet" href="assets/css/admin.css">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=4">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -26,45 +26,52 @@ if (!isset($_SESSION['email'])) {
             <div class="navigation">
                 <ul>
 
-                    <li>
-                        <a href="#">
+                    <li class="logo">
+                        <a href="/ireserve/admin/admin_page.php">
                             <span class="icon">
-                                <span class="icon"><i class="bi bi-balloon-heart"></i></span>
+                                <img class="brand-logo" src="/ireserve/assets/images/ireserve_logo.png" alt="iReserve logo">
                             </span>
                             <span class="title">iReserve</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="/ireserve/admin/admin_page.php">
                             <span class="icon"><i class="bi bi-house"></i></span>
                             <span class="title">Dashboard</span>
                         </a>
                     </li>
                     
                     <li>
-                        <a href="#">
+                        <a href="/ireserve/admin/userList.php">
                             <span class="icon"><i class="bi bi-people"></i></span>
                             <span class="title">User</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
-                            <span class="icon"><i class="bi bi-calendar2-check"></i></span>
-                            <span class="title">Approval</span>
+                        <a class="active" href="/ireserve/admin/inventory.php">
+                            <span class="icon"><i class="bi bi-backpack2"></i></span>
+                            <span class="title">Inventory</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="/ireserve/admin/approvals.php">
+                            <span class="icon"><i class="bi bi-calendar2-check"></i></span>
+                            <span class="title">Bookings</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/ireserve/admin/settings.php">
                             <span class="icon"><i class="bi bi-gear"></i></span>
                             <span class="title">Settings</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="logout.php" class="logout">
+                        <a href="/ireserve/logout.php" class="logout">
                             <span class="icon"><i class="bi bi-box-arrow-right"></i></span>
                             <span class="title">Logout</span>
                         </a>
@@ -83,12 +90,14 @@ if (!isset($_SESSION['email'])) {
                     <div class="search">
                         <label>
                             <input type="text" placeholder="Search here">
-                            <i class="bi bi-search"></i>
+                            <button type="submit" class="icon-btn">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </label>
                     </div>
 
                     <div class="user">
-                        <img src="assets/images/img1.png" alt="User Image">
+                        <img src="/ireserve/assets/images/img1.png" alt="User Image">
                     </div>
                 </div>
 
@@ -208,7 +217,7 @@ if (!isset($_SESSION['email'])) {
             </div>
         </div>
 
-    <script src="assets/js/admin.js"></script>
+    <script src="/ireserve/assets/js/admin.js"></script>
     </body>
 
 </html>
