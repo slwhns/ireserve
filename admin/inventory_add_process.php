@@ -96,17 +96,18 @@ if ($stmt) {
     
     if ($stmt->execute()) {
         $stmt->close();
-        header("Location: inventory.php?success=Item added successfully");
+        $conn->close();
+        header("Location: inventory.php?success=added");
         exit();
     } else {
         $stmt->close();
+        $conn->close();
         header("Location: inventory_add.php?error=database_error");
         exit();
     }
 } else {
+    $conn->close();
     header("Location: inventory_add.php?error=prepare_failed");
     exit();
 }
-
-$conn->close();
 ?>

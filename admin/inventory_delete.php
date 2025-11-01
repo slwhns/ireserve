@@ -66,5 +66,4 @@ if ($stmt) {
     exit();
 }
 
-$conn->close();
 ?>
