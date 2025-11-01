@@ -47,7 +47,7 @@
 }
 
 .details table thead td {
-    font-weight: 600;;
+    font-weight: 600;
 }
 
 .details .adminList table tr,
@@ -80,15 +80,70 @@
 
 .icon-btn {
     border: none;
-    background: transparent;
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
     transition: all 0.3s ease;
 }
 
-.icon-btn:hover {
-    background-color: var(--blue);
-    color: var(--white);
+.details table tbody .action .icon-btn:hover {
+    background: var(--blue);
+    color: var(--white) !important;
     transform: translateY(-2px);
+}
+
+/* ===================== Responsive Enhancements ===================== */
+@media (max-width: 992px) {
+    .details {
+        grid-template-columns: 1fr;
+        padding: 20px;
+        grid-gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .details .adminList,
+    .details .userList {
+        padding: 18px;
+        max-height: none;
+        overflow: hidden;
+    }
+
+    .details .adminList .cardHeader,
+    .details .userList .cardHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .cardHeader .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .details .adminList,
+    .details .userList {
+        overflow-x: auto;
+    }
+
+    .details table {
+        min-width: 640px;
+        margin-top: 8px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+    .details {
+        padding: 15px;
+    }
+
+    .details table {
+        min-width: 560px;
+    }
+
+    .icon-btn {
+        padding: 6px;
+        border-radius: 6px;
+    }
 }

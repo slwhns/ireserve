@@ -1,0 +1,283 @@
+/* ================== Inventory Page Styles =================== */
+
+.details {
+    position: relative;
+    width: 100%;
+    margin-top: 15px;
+    padding: 20px;
+    display: block;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert i {
+    font-size: 18px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.details .inventoryTable {
+    position: relative;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden auto;
+    max-height: calc(100vh - 300px);
+    min-height: 500px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.details .inventoryTable .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.cardHeader h3 {
+    font-weight: 600;
+    color: var(--blue);
+    font-size: 1.5rem;
+}
+
+.cardHeader .btn {
+    position: relative;
+    padding: 8px 16px;
+    background: var(--blue);
+    text-decoration: none;
+    color: var(--white);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.cardHeader .btn:hover {
+    background: rgba(42, 33, 133, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(42, 33, 133, 0.3);
+}
+
+/* Table styling to match other pages */
+.details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.details table thead td {
+    font-weight: 600;
+    padding: 12px 10px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    color: var(--blue);
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.details .inventoryTable table tr {
+    color: var(--black1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.details .inventoryTable table tr:last-child {
+    border-bottom: none;
+}
+
+.details .inventoryTable table tbody tr:hover {
+    background: rgba(42, 33, 133, 0.05);
+    transition: all 0.2s ease;
+}
+
+.details .inventoryTable table tr td {
+    padding: 12px 10px;
+    vertical-align: middle;
+}
+
+/* Status badges */
+.status {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.status.available {
+    background: #66b30f;
+    color: var(--white);
+}
+
+.status.unavailable {
+    background: #f00;
+    color: var(--white);
+}
+
+.status.maintenance {
+    background: #e9b10a;
+    color: var(--white);
+}
+
+/* Action buttons - keep in one line */
+.details .inventoryTable table tbody td button {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.details .inventoryTable table tbody td:last-child {
+    white-space: nowrap; /* Keep buttons on same line */
+}
+
+button.edit {
+    background: var(--blue);
+    color: var(--white);
+}
+
+button.edit:hover {
+    background: rgba(42, 33, 133, 0.85);
+    transform: translateY(-1px);
+}
+
+button.delete {
+    background: #f00;
+    color: var(--white);
+    margin-right: 0; /* Remove margin from last button */
+}
+
+button.delete:hover {
+    background: #cc0000;
+    transform: translateY(-1px);
+}
+
+/* Item image styling - enlarged */
+.item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ====================== Responsive Design ========================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+    .details {
+        padding: 15px;
+    }
+
+    .details .inventoryTable {
+        padding: 20px;
+        max-height: none;
+        overflow-x: auto;
+    }
+
+    .details .inventoryTable .cardHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .cardHeader .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .cardHeader h3 {
+        font-size: 1.25rem;
+    }
+
+    /* Make table scrollable horizontally on small screens */
+    .details table {
+        min-width: 800px;
+    }
+
+    .item-img {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .details {
+        padding: 10px;
+    }
+
+    .details .inventoryTable {
+        padding: 15px;
+    }
+
+    .cardHeader h3 {
+        font-size: 1.1rem;
+    }
+
+    /* Force minimum width for horizontal scroll */
+    .details table {
+        min-width: 750px;
+    }
+
+    .details table thead td,
+    .details .inventoryTable table tr td {
+        padding: 8px 6px;
+        font-size: 14px;
+    }
+
+    button.edit,
+    button.delete {
+        padding: 6px 10px;
+        font-size: 13px;
+        margin-right: 5px;
+    }
+
+    .item-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .status {
+        padding: 3px 8px;
+        font-size: 12px;
+    }
+}

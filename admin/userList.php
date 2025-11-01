@@ -23,69 +23,15 @@ $users = $conn->query("
         <meta charset="UTF-8" />
         <title>iReserve · Admin & User List</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=4">
-        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=3">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=5">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=4">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     </head>
     <body>
 
         <div class="container">
             <!-- ====== Sidebar (navigation) ====== -->
-            <div class="navigation">
-                <ul>
-                    <!-- Logo -->
-                    <li class="logo">
-                        <a href="/ireserve/admin/admin_page.php">
-                            <span class="icon">
-                                <img class="brand-logo" src="/ireserve/assets/images/ireserve_logo.png" alt="iReserve logo">
-                            </span>
-                            <span class="title">iReserve</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="/ireserve/admin/admin_page.php">
-                            <span class="icon"><i class="bi bi-speedometer2"></i></span>
-                            <span class="title">Dashboard</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="active" href="/ireserve/admin/userList.php">
-                            <span class="icon"><i class="bi bi-people"></i></span>
-                            <span class="title">User</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="active" href="/ireserve/admin/inventory.php">
-                            <span class="icon"><i class="bi bi-backpack2"></i></span>
-                            <span class="title">Inventory</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="/ireserve/admin/approvals.php">
-                            <span class="icon"><i class="bi bi-clipboard-check"></i></span>
-                            <span class="title">Approval</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="/ireserve/admin/settings.php">
-                            <span class="icon"><i class="bi bi-gear"></i></span>
-                            <span class="title">Settings</span>
-                        </a>
-                    </li>
-
-                    <li class="logout">
-                        <a href="/ireserve/admin/logout.php">
-                            <span class="icon"><i class="bi bi-box-arrow-right"></i></span>
-                            <span class="title">Logout</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <?php include 'sidebar.php'; ?>
 
             <!-- ====== Main ====== -->
             <div class="main">

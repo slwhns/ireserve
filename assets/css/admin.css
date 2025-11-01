@@ -316,6 +316,7 @@ body {
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden auto;
 }
 
 .details .recentBookings .cardHeader {
@@ -402,6 +403,7 @@ body {
     background: var(--white);
     box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
     border-radius: 20px;
+    overflow: hidden auto;
 }
 
 .topBookings table tbody tr:hover {
