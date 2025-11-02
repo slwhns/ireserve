@@ -117,13 +117,67 @@ body {
 .navigation ul li.logo a .icon img,
 .navigation ul li a .icon img,
 .brand-logo{
-  width: 88px !important;
-  height: 88px !important;
+  width: 50px !important;
+  height: 50px !important;
   object-fit: contain;
   display: inline-block;
   vertical-align: middle;
 }
 
+/* Logo styling */
+.navigation ul li.logo {
+    margin-bottom: 30px !important;
+}
+
+.navigation ul li.logo a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+}
+
+.navigation ul li.logo a .icon {
+    min-width: 50px !important;
+    height: 50px !important;
+}
+
+.navigation ul li.logo a .title {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    color: var(--white) !important;
+    height: auto !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+}
+
+/* Brand visibility rules: avoid duplicate brand (image + text) */
+/* Expanded sidebar: show text title, hide brand image */
+.navigation:not(.active) ul li.logo a .icon img {
+    display: none !important;
+}
+/* Collapsed sidebar: hide text (already above), show brand image */
+.navigation.active ul li.logo a .icon img {
+    display: inline-block !important;
+}
+
+.navigation.active ul li a .title {
+    display: none !important;
+}
+.navigation.active ul li.logo a {
+    justify-content: center;
+    gap: 0;
+    padding: 14px 0;
+}
+.navigation.active ul li.logo a .icon {
+    min-width: 40px !important;
+    height: 40px !important;
+}
+.navigation.active ul li.logo a .icon img,
+.navigation.active .brand-logo {
+    width: 40px !important;
+    height: 40px !important;
+}
 
 .navigation ul li a .title {
     position: relative;

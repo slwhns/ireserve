@@ -8,6 +8,91 @@ if (!isset($_SESSION['email'])) {
 
 require_once __DIR__ . '/../config.php';
 
+// Helper function for escaping HTML
+function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
+
+// Initialize counts
+$totalUsers = 0;
+$pendingApprovals = 0;
+$totalAdmins = 0;
+
+// Get total users count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM users WHERE role = 'user'");
+if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $totalUsers = $row['count'];
+    }
+    $stmt->close();
+}
+
+// Get pending approvals count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'");
+if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $pendingApprovals = $row['count'];
+    }
+    $stmt->close();
+}
+
+// Get total admins count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin'");
+if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $totalAdmins = $row['count'];
+    }
+    $stmt->close();
+}
+
+// Get recent bookings (last 10)
+$recentBookings = [];
+$stmt = $conn->prepare("
+    SELECT 
+        b.ref_code, b.start_at, b.status,
+        u.name AS user_name,
+        i.name AS item_name
+    FROM bookings b
+    LEFT JOIN users u ON u.id = b.user_id
+    LEFT JOIN inventory_items i ON i.item_id = b.item_id
+    ORDER BY b.created_at DESC
+    LIMIT 10
+");
+if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $recentBookings[] = $row;
+    }
+    $stmt->close();
+}
+
+// Get top booked items
+$topItems = [];
+$stmt = $conn->prepare("
+    SELECT 
+        i.name AS item_name,
+        COUNT(*) as booking_count
+    FROM bookings b
+    LEFT JOIN inventory_items i ON i.item_id = b.item_id
+    WHERE i.name IS NOT NULL
+    GROUP BY b.item_id, i.name
+    ORDER BY booking_count DESC
+    LIMIT 5
+");
+if ($stmt) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $topItems[] = $row;
+    }
+    $stmt->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -16,8 +101,8 @@ require_once __DIR__ . '/../config.php';
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Page</title>
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=4">
+        <title>Admin Page | iReserve</title>
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=6">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -66,7 +151,7 @@ require_once __DIR__ . '/../config.php';
                 <div class="cardBox">
                     <div class="card">
                         <div>
-                            <div class="numbers">150</div>
+                            <div class="numbers"><?= h($totalUsers) ?></div>
                             <div class="cardName">Users</div>
                         </div>
                         <div class="iconBx">
@@ -76,8 +161,8 @@ require_once __DIR__ . '/../config.php';
 
                     <div class="card">
                         <div>
-                            <div class="numbers">300</div>
-                            <div class="cardName">Approval</div>
+                            <div class="numbers"><?= h($pendingApprovals) ?></div>
+                            <div class="cardName">Pending Approval</div>
                         </div>
                         <div class="iconBx">
                             <i class="bi bi-pen"></i>
@@ -86,7 +171,7 @@ require_once __DIR__ . '/../config.php';
 
                     <div class="card">
                         <div>
-                            <div class="numbers">10</div>
+                            <div class="numbers"><?= h($totalAdmins) ?></div>
                             <div class="cardName">Admin</div>
                         </div>
                         <div class="iconBx">
@@ -100,7 +185,7 @@ require_once __DIR__ . '/../config.php';
                     <div class="recentBookings">
                         <div class="cardHeader">
                             <h2>Recent Bookings</h2>
-                            <a href="#" class="btn">View All</a>
+                            <a href="bookings.php" class="btn">View All</a>
                         </div>
 
                         <table>
@@ -113,30 +198,20 @@ require_once __DIR__ . '/../config.php';
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if (empty($recentBookings)): ?>
                                 <tr>
-                                    <td>John Doe</td>
-                                    <td>Projector</td>
-                                    <td>2024-06-15</td>
-                                    <td><span class="status approved">Approved</span></td>
+                                    <td colspan="4" style="text-align: center; padding: 20px; color: #999;">No bookings yet</td>
                                 </tr>
-                                <tr>
-                                    <td>Jane Smith</td>
-                                    <td>Laptop</td>
-                                    <td>2024-06-16</td>
-                                    <td><span class="status pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Mike Johnson</td>
-                                    <td>Camera</td>
-                                    <td>2024-06-17</td>
-                                    <td><span class="status rejected">Declined</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Emily Davis</td>
-                                    <td>Microphone</td>
-                                    <td>2024-06-18</td>
-                                    <td><span class="status approved">Approved</span></td>
-                                </tr>
+                                <?php else: ?>
+                                    <?php foreach ($recentBookings as $booking): ?>
+                                    <tr>
+                                        <td><?= h($booking['user_name'] ?? 'Unknown') ?></td>
+                                        <td><?= h($booking['item_name'] ?? 'Unknown') ?></td>
+                                        <td><?= h(date('Y-m-d', strtotime($booking['start_at']))) ?></td>
+                                        <td><span class="status <?= h($booking['status']) ?>"><?= h(ucfirst($booking['status'])) ?></span></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -155,23 +230,20 @@ require_once __DIR__ . '/../config.php';
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if (empty($topItems)): ?>
                                 <tr>
-                                    <td>Projector</td>
-                                    <td>120</td>
+                                    <td colspan="2" style="text-align: center; padding: 20px; color: #999;">No bookings yet</td>
                                 </tr>
-                                <tr>
-                                    <td>Laptop</td>
-                                    <td>95</td>
-                                </tr>
-                                <tr>
-                                    <td>Camera</td>
-                                    <td>80</td>
-                                </tr>
-                                <tr>
-                                    <td>Microphone</td>
-                                    <td>60</td>
-                                </tr>
+                                <?php else: ?>
+                                    <?php foreach ($topItems as $item): ?>
+                                    <tr>
+                                        <td><?= h($item['item_name']) ?></td>
+                                        <td><?= h($item['booking_count']) ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
+                        </table>
                     </div>
                 </div>
 

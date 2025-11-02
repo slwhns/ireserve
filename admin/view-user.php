@@ -74,10 +74,6 @@ if ($stmt) {
                                 <img src="<?php echo htmlspecialchars($uimg); ?>" alt="<?php echo htmlspecialchars($user['name']); ?>" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);" />
                             </span>
                         </div>
-                        <div class="detail-row">
-                            <label><i class="bi bi-hash"></i> User ID:</label>
-                            <span><?php echo htmlspecialchars($user['id']); ?></span>
-                        </div>
 
                         <div class="detail-row">
                             <label><i class="bi bi-person"></i> Name:</label>

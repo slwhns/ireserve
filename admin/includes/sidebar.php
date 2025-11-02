@@ -1,3 +1,4 @@
+
 <!-- ============ Navigation Sidebar ============ -->
 <div class="navigation">
     <ul>
@@ -32,7 +33,7 @@
         </li>
 
         <li class="<?php echo ($currentPage == 'bookings') ? 'hovered' : ''; ?>">
-            <a href="/ireserve/admin/approvals.php">
+            <a href="/ireserve/admin/bookings.php">
                 <span class="icon"><i class="bi bi-calendar2-check"></i></span>
                 <span class="title">Bookings</span>
             </a>

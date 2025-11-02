@@ -2,26 +2,61 @@
 
 require_once __DIR__ . '/../config.php'; // e.g. sets $conn = new mysqli(...);
 
-// Fetch Admins
-$admins = $conn->query("
-    SELECT id, name, email, picture_url
-    FROM users
-    WHERE role = 'admin'
-");
+// Pagination settings
+$perPageAdmin = 10;
+$perPageUser = 10;
 
-// Fetch Users
-$users = $conn->query("
-    SELECT id, name, email, picture_url
-    FROM users
-    WHERE role = 'user'
-");
+// Pages from query params
+$pageAdmin = isset($_GET['page_admin']) && is_numeric($_GET['page_admin']) ? (int)$_GET['page_admin'] : 1;
+$pageUser  = isset($_GET['page_user']) && is_numeric($_GET['page_user']) ? (int)$_GET['page_user'] : 1;
+if ($pageAdmin < 1) { $pageAdmin = 1; }
+if ($pageUser < 1) { $pageUser = 1; }
+
+$offsetAdmin = ($pageAdmin - 1) * $perPageAdmin;
+$offsetUser  = ($pageUser  - 1) * $perPageUser;
+
+// Total counts
+$totalAdmins = 0; $totalUsers = 0;
+if ($res = $conn->query("SELECT COUNT(*) AS total FROM users WHERE role='admin'")) {
+    $row = $res->fetch_assoc();
+    $totalAdmins = isset($row['total']) ? (int)$row['total'] : 0;
+}
+if ($res = $conn->query("SELECT COUNT(*) AS total FROM users WHERE role='user'")) {
+    $row = $res->fetch_assoc();
+    $totalUsers = isset($row['total']) ? (int)$row['total'] : 0;
+}
+
+$totalPagesAdmin = max(1, (int)ceil($totalAdmins / $perPageAdmin));
+$totalPagesUser  = max(1, (int)ceil($totalUsers / $perPageUser));
+if ($pageAdmin > $totalPagesAdmin) { $pageAdmin = $totalPagesAdmin; $offsetAdmin = ($pageAdmin - 1) * $perPageAdmin; }
+if ($pageUser > $totalPagesUser) { $pageUser = $totalPagesUser; $offsetUser = ($pageUser - 1) * $perPageUser; }
+
+// Fetch Admins (paginated)
+$stmtA = $conn->prepare("SELECT id, name, email, picture_url FROM users WHERE role='admin' ORDER BY id DESC LIMIT ? OFFSET ?");
+if ($stmtA) {
+    $stmtA->bind_param('ii', $perPageAdmin, $offsetAdmin);
+    $stmtA->execute();
+    $admins = $stmtA->get_result();
+} else {
+    $admins = false;
+}
+
+// Fetch Users (paginated)
+$stmtU = $conn->prepare("SELECT id, name, email, picture_url FROM users WHERE role='user' ORDER BY id DESC LIMIT ? OFFSET ?");
+if ($stmtU) {
+    $stmtU->bind_param('ii', $perPageUser, $offsetUser);
+    $stmtU->execute();
+    $users = $stmtU->get_result();
+} else {
+    $users = false;
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>iReserve · Admin & User List</title>
+        <title>Admin & User List | iReserve</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=5">
     <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=5">
@@ -91,7 +126,7 @@ $users = $conn->query("
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($admins && $admins->num_rows): $i=1; ?>
+                                <?php if ($admins && $admins->num_rows): $i = $offsetAdmin + 1; ?>
                                     <?php while ($row = $admins->fetch_assoc()): ?>
                                         <tr>
                                             <td><?= $i++ ?></td>
@@ -116,6 +151,40 @@ $users = $conn->query("
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        <?php if ($totalPagesAdmin > 1): ?>
+                        <div class="pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px;flex-wrap:wrap;">
+                            <div class="pagination-info" style="color:#666;">
+                                <?php $fromA = $totalAdmins ? ($offsetAdmin + 1) : 0; $toA = min($offsetAdmin + $perPageAdmin, $totalAdmins); ?>
+                                Showing <?= $fromA ?>–<?= $toA ?> of <?= $totalAdmins ?>
+                            </div>
+                            <div class="pagination-links" style="display:flex;gap:6px;align-items:center;">
+                                <?php if ($pageAdmin > 1): ?>
+                                    <a class="page-link prev" href="?page_admin=<?= $pageAdmin - 1 ?>&page_user=<?= $pageUser ?>" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">&laquo; Prev</a>
+                                <?php endif; ?>
+                                <?php
+                                $window = 2; $start = max(1, $pageAdmin - $window); $end = min($totalPagesAdmin, $pageAdmin + $window);
+                                if ($start > 1) {
+                                    echo '<a class="page-link" href="?page_admin=1&page_user=' . $pageUser . '" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">1</a>';
+                                    if ($start > 2) echo '<span class="ellipsis" style="padding:0 4px;color:#999;">…</span>';
+                                }
+                                for ($p = $start; $p <= $end; $p++) {
+                                    if ($p == $pageAdmin) {
+                                        echo '<span class="page-link active" style="padding:6px 10px;border:1px solid #4c74f5;background:#4c74f5;color:#fff;border-radius:6px;">' . $p . '</span>';
+                                    } else {
+                                        echo '<a class="page-link" href="?page_admin=' . $p . '&page_user=' . $pageUser . '" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">' . $p . '</a>';
+                                    }
+                                }
+                                if ($end < $totalPagesAdmin) {
+                                    if ($end < $totalPagesAdmin - 1) echo '<span class="ellipsis" style="padding:0 4px;color:#999;">…</span>';
+                                    echo '<a class="page-link" href="?page_admin=' . $totalPagesAdmin . '&page_user=' . $pageUser . '" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">' . $totalPagesAdmin . '</a>';
+                                }
+                                ?>
+                                <?php if ($pageAdmin < $totalPagesAdmin): ?>
+                                    <a class="page-link next" href="?page_admin=<?= $pageAdmin + 1 ?>&page_user=<?= $pageUser ?>" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Next &raquo;</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="userList">
@@ -133,7 +202,7 @@ $users = $conn->query("
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($users && $users->num_rows): $i=1; ?>
+                                <?php if ($users && $users->num_rows): $i = $offsetUser + 1; ?>
                                     <?php while ($row = $users->fetch_assoc()): ?>
                                         <tr>
                                             <td><?= $i++ ?></td>
@@ -158,6 +227,40 @@ $users = $conn->query("
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        <?php if ($totalPagesUser > 1): ?>
+                        <div class="pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px;flex-wrap:wrap;">
+                            <div class="pagination-info" style="color:#666;">
+                                <?php $fromU = $totalUsers ? ($offsetUser + 1) : 0; $toU = min($offsetUser + $perPageUser, $totalUsers); ?>
+                                Showing <?= $fromU ?>–<?= $toU ?> of <?= $totalUsers ?>
+                            </div>
+                            <div class="pagination-links" style="display:flex;gap:6px;align-items:center;">
+                                <?php if ($pageUser > 1): ?>
+                                    <a class="page-link prev" href="?page_admin=<?= $pageAdmin ?>&page_user=<?= $pageUser - 1 ?>" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">&laquo; Prev</a>
+                                <?php endif; ?>
+                                <?php
+                                $window = 2; $start = max(1, $pageUser - $window); $end = min($totalPagesUser, $pageUser + $window);
+                                if ($start > 1) {
+                                    echo '<a class="page-link" href="?page_admin=' . $pageAdmin . '&page_user=1" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">1</a>';
+                                    if ($start > 2) echo '<span class="ellipsis" style="padding:0 4px;color:#999;">…</span>';
+                                }
+                                for ($p = $start; $p <= $end; $p++) {
+                                    if ($p == $pageUser) {
+                                        echo '<span class="page-link active" style="padding:6px 10px;border:1px solid #4c74f5;background:#4c74f5;color:#fff;border-radius:6px;">' . $p . '</span>';
+                                    } else {
+                                        echo '<a class="page-link" href="?page_admin=' . $pageAdmin . '&page_user=' . $p . '" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">' . $p . '</a>';
+                                    }
+                                }
+                                if ($end < $totalPagesUser) {
+                                    if ($end < $totalPagesUser - 1) echo '<span class="ellipsis" style="padding:0 4px;color:#999;">…</span>';
+                                    echo '<a class="page-link" href="?page_admin=' . $pageAdmin . '&page_user=' . $totalPagesUser . '" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">' . $totalPagesUser . '</a>';
+                                }
+                                ?>
+                                <?php if ($pageUser < $totalPagesUser): ?>
+                                    <a class="page-link next" href="?page_admin=<?= $pageAdmin ?>&page_user=<?= $pageUser + 1 ?>" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Next &raquo;</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div> <!-- /main -->
