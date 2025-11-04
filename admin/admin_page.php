@@ -8,6 +8,8 @@ if (!isset($_SESSION['email'])) {
 
 require_once __DIR__ . '/../config.php';
 
+$currentPage = 'dashboard';
+
 // Helper function for escaping HTML
 function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 
@@ -49,7 +51,7 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get recent bookings (last 10)
+// Get recent bookings (last 7)
 $recentBookings = [];
 $stmt = $conn->prepare("
     SELECT 
@@ -60,7 +62,7 @@ $stmt = $conn->prepare("
     LEFT JOIN users u ON u.id = b.user_id
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
     ORDER BY b.created_at DESC
-    LIMIT 10
+    LIMIT 7
 ");
 if ($stmt) {
     $stmt->execute();
@@ -102,7 +104,7 @@ if ($stmt) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Page | iReserve</title>
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=6">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -114,37 +116,12 @@ if ($stmt) {
 
             <!-- ============ Main Content ============ -->
             <div class="main">
-                <div class="topbar">
-                    <div class="toggle">
-                        <i class="bi bi-list"></i>
-                    </div>
+                <?php include __DIR__ . '/includes/topbar.php'; ?>
 
-                    <div class="search">
-                        <label>
-                            <input type="text" placeholder="Search here">
-                            <i class="bi bi-search"></i>
-                        </label>
-                    </div>
-
-                    <div class="user">
-                        <?php
-                        // Get current user's profile image
-                        $userImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/%3E%3C/svg%3E';
-                        if (isset($_SESSION['user_id']) && isset($conn) && $conn) {
-                            $stmt = $conn->prepare('SELECT picture_url FROM users WHERE id = ? LIMIT 1');
-                            if ($stmt) {
-                                $stmt->bind_param('i', $_SESSION['user_id']);
-                                $stmt->execute();
-                                $res = $stmt->get_result();
-                                if ($res && $row = $res->fetch_assoc()) {
-                                    if (!empty($row['picture_url'])) { $userImg = $row['picture_url']; }
-                                }
-                                $stmt->close();
-                            }
-                        }
-                        ?>
-                        <img src="<?= htmlspecialchars($userImg) ?>" alt="User Image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23666%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z%22/%3E%3C/svg%3E';">
-                    </div>
+                <!-- ====================== Welcome Message ================== -->
+                <div class="welcome-message">
+                    <h1>Welcome, <?= h($_SESSION['name'] ?? $_SESSION['email'] ?? 'Admin') ?>!</h1>
+                    <p>Here's an overview of iReserve system</p>
                 </div>
 
                 <!-- ====================== Cards ================== -->  
@@ -250,7 +227,7 @@ if ($stmt) {
             </div>
         </div>
 
-    <script src="/ireserve/assets/js/admin.js"></script>
+    <script src="/ireserve/assets/js/admin.js?v=8"></script>
     </body>
 
 </html>

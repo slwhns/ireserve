@@ -23,12 +23,46 @@
 .details .userList .cardHeader {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    gap: 15px;
 }
 
 .cardHeader h2 {
     font-weight: 600;
     color: var(--blue);
+    flex: 1;
+}
+
+/* Simple back button styling (shared look) */
+.btn-back-simple {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #f6f7fb;
+    color: var(--blue);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid rgba(42, 33, 133, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-back-simple:hover {
+    background: rgba(42, 33, 133, 0.1);
+    border-color: rgba(42, 33, 133, 0.2);
+    transform: translateX(-2px);
+}
+
+/* Page-level actions above the cards */
+.pageActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 0 35px;
+    margin-bottom: 10px;
 }
 
 .cardHeader .btn {

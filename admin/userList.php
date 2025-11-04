@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../config.php'; // e.g. sets $conn = new mysqli(...);
 
+$currentPage = 'users';
+
 // Pagination settings
 $perPageAdmin = 10;
 $perPageUser = 10;
@@ -58,8 +60,8 @@ if ($stmtU) {
         <meta charset="UTF-8" />
         <title>Admin & User List | iReserve</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=5">
-    <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=5">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+	<link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=8">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
@@ -76,6 +78,12 @@ if ($stmtU) {
 
                 <!-- Two cards in a responsive grid: Admins & Users -->
                 
+                <div class="pageActions">
+                    <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </div>
+
                 <div class="details">
                     <?php
                     // Display success messages
@@ -279,7 +287,7 @@ if ($stmtU) {
             </div>
         </div>
 
-        <script src="/ireserve/assets/js/admin.js"></script>
+        <script src="/ireserve/assets/js/admin.js?v=8"></script>
         <script>
             function openFeedbackModal(message, type) {
                 const modal = document.getElementById('feedbackModal');

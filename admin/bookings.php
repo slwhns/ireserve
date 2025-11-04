@@ -12,17 +12,19 @@ function badge($status){
         'pending'  => 'badge badge-pending',
         'approved' => 'badge badge-approved',
         'rejected' => 'badge badge-rejected',
+        'taken'    => 'badge badge-taken',
         'returned' => 'badge badge-returned',
     ];
     $cls = $map[$status] ?? 'badge';
     return '<span class="'.$cls.'">'.h(ucfirst($status)).'</span>';
 }
 
-$search  = trim($_GET['q'] ?? '');
-$status  = trim($_GET['status'] ?? '');
-$page    = max(1, (int)($_GET['page'] ?? 1));
-$perPage = 7;
-$offset  = ($page - 1) * $perPage;
+$search   = trim($_GET['q'] ?? '');
+$status   = trim($_GET['status'] ?? '');
+$location = trim($_GET['location'] ?? '');
+$page     = max(1, (int)($_GET['page'] ?? 1));
+$perPage  = 7;
+$offset   = ($page - 1) * $perPage;
 
 /* Build WHERE & params */
 $where  = [];
@@ -38,6 +40,11 @@ if ($status !== '') {
     $where[] = "b.status = ?";
     $types   .= 's';
     $params[] = $status;
+}
+if ($location !== '') {
+    $where[] = "i.location = ?";
+    $types   .= 's';
+    $params[] = $location;
 }
 $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
@@ -61,7 +68,7 @@ $stmt->close();
 $sqlList = "
     SELECT
         b.ref_code, b.qty, b.start_at, b.end_at, b.status, b.purpose, b.admin_note,
-        i.name AS item_name, i.sku AS item_code,
+        i.name AS item_name, i.sku AS item_code, i.location AS item_location,
         u.name AS user_name, u.matrics_number, u.phone_number
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
@@ -87,9 +94,18 @@ $stmt->close();
 
 $pages = max(1, (int)ceil($total / $perPage));
 
+/* Get unique locations for filter */
+$locations = [];
+$locStmt = $conn->query("SELECT DISTINCT location FROM inventory_items WHERE location IS NOT NULL AND location != '' ORDER BY location");
+if ($locStmt) {
+    while ($locRow = $locStmt->fetch_assoc()) {
+        $locations[] = $locRow['location'];
+    }
+}
+
 /* Helper to keep filters in links */
-$buildLink = function(int $p) use ($search, $status){
-    return 'bookings.php?' . http_build_query(array_filter(['q'=>$search,'status'=>$status,'page'=>$p]));
+$buildLink = function(int $p) use ($search, $status, $location){
+    return 'bookings.php?' . http_build_query(array_filter(['q'=>$search,'status'=>$status,'location'=>$location,'page'=>$p]));
 };
 
 $showStart = $total > 0 ? ($offset + 1) : 0;
@@ -101,9 +117,9 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Bookings | iReserve</title>
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=6">
-    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=2">
-    <link rel="stylesheet" href="/ireserve/assets/css/bookings.css?v=2">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=4">
+    <link rel="stylesheet" href="/ireserve/assets/css/bookings.css?v=6">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
@@ -115,6 +131,9 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
                 <div class="inventoryTable">
                     <div class="cardHeader">
                         <h3>Bookings</h3>
+                        <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
                     </div>
 
 <div class="filterRow" style="margin-bottom:12px;">
@@ -122,12 +141,18 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
         <input type="text" name="q" placeholder="Search ref, user, item..." value="<?=h($search)?>">
         <select name="status">
             <option value="">All status</option>
-            <?php foreach (['pending','approved','rejected','returned'] as $s): ?>
+            <?php foreach (['pending','approved','taken','rejected','returned'] as $s): ?>
                 <option value="<?=$s?>" <?=$status===$s?'selected':''?>><?=ucfirst($s)?></option>
             <?php endforeach; ?>
         </select>
+        <select name="location">
+            <option value="">All locations</option>
+            <?php foreach ($locations as $loc): ?>
+                <option value="<?=h($loc)?>" <?=$location===$loc?'selected':''?>><?=h($loc)?></option>
+            <?php endforeach; ?>
+        </select>
         <button class="btn" type="submit">Apply</button>
-        <?php if ($search!=='' || $status!==''): ?>
+        <?php if ($search!=='' || $status!=='' || $location!==''): ?>
             <a class="btn" style="background:#9aa6ff;text-decoration:none" href="bookings.php">Reset</a>
         <?php endif; ?>
     </form>
@@ -142,6 +167,7 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
         <tr>
             <td>No.</td>
             <td>Item</td>
+            <td>Location</td>
             <td>User</td>
             <td>Qty</td>
             <td>Start</td>
@@ -152,11 +178,12 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     </thead>
     <tbody>
     <?php if (!$rows): ?>
-        <tr><td colspan="8" style="text-align:center; padding:28px; color:#777;">No bookings found.</td></tr>
+        <tr><td colspan="9" style="text-align:center; padding:28px; color:#777;">No bookings found.</td></tr>
     <?php else: $rowNum = $offset + 1; foreach ($rows as $r): ?>
         <tr>
             <td><strong><?=$rowNum++?></strong></td>
             <td><?=h($r['item_name'])?> <small style="color:#888;">(<?=h($r['item_code'])?>)</small></td>
+            <td><?=h($r['item_location'] ?? 'Not specified')?></td>
             <td><?=h($r['user_name'])?><br><small style="color:#888;"><?=h($r['matrics_number'])?> · <?=h($r['phone_number'])?></small></td>
             <td><?=intval($r['qty'])?></td>
             <td><?=date('d M Y, H:i', strtotime($r['start_at']))?></td>
@@ -169,6 +196,8 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
                         <button class="btn-sm btn-approve" data-ref="<?=h($r['ref_code'])?>" data-action="approved">Approve</button>
                         <button class="btn-sm btn-reject"  data-ref="<?=h($r['ref_code'])?>" data-action="rejected">Reject</button>
                     <?php elseif ($r['status']==='approved'): ?>
+                        <button class="btn-sm btn-taken"  data-ref="<?=h($r['ref_code'])?>" data-action="taken">Mark as Taken</button>
+                    <?php elseif ($r['status']==='taken'): ?>
                         <button class="btn-sm btn-return"  data-ref="<?=h($r['ref_code'])?>" data-action="returned">Mark Returned</button>
                     <?php endif; ?>
                 </div>
@@ -235,6 +264,6 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     <div class="actions"><button id="md-close">Close</button></div>
 </div>
 
-<script src="/ireserve/assets/js/admin.js?v=3"></script>
+<script src="/ireserve/assets/js/admin.js?v=8"></script>
 </body>
 </html>

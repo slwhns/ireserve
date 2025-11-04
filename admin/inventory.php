@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config.php';
+
+$currentPage = 'inventory';
 ?>
 
 <!DOCTYPE html>
@@ -10,8 +12,8 @@ require_once __DIR__ . '/../config.php';
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory | iReserve</title>
     <!-- Core admin styles first to ensure sidebar/layout rules load -->
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=6">
-    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=2">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=4">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
@@ -23,36 +25,7 @@ require_once __DIR__ . '/../config.php';
             <div class="main">
 
                 <!-- Topbar -->
-                <div class="topbar">
-                    <div class="toggle">
-                        <i class="bi bi-list"></i>
-                    </div>
-                    <div class="search">
-                        <label>
-                            <input type="text" placeholder="Search here">
-                            <i class="bi bi-search"></i>
-                        </label>
-                    </div>
-                    <div class="user">
-                        <?php
-                        // Get current user's profile image
-                        $userImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/%3E%3C/svg%3E';
-                        if (isset($_SESSION['user_id']) && isset($conn) && $conn) {
-                            $stmt = $conn->prepare('SELECT picture_url FROM users WHERE id = ? LIMIT 1');
-                            if ($stmt) {
-                                $stmt->bind_param('i', $_SESSION['user_id']);
-                                $stmt->execute();
-                                $res = $stmt->get_result();
-                                if ($res && $row = $res->fetch_assoc()) {
-                                    if (!empty($row['picture_url'])) { $userImg = $row['picture_url']; }
-                                }
-                                $stmt->close();
-                            }
-                        }
-                        ?>
-                        <img src="<?= htmlspecialchars($userImg) ?>" alt="profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23666%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z%22/%3E%3C/svg%3E';">
-                    </div>
-                </div>
+                <?php include __DIR__ . '/includes/topbar.php'; ?>
                 
                 <!-- ====== Content ====== -->
                 <div class="details">
@@ -95,6 +68,9 @@ require_once __DIR__ . '/../config.php';
                         <div class="inventoryTable">
                         <div class="cardHeader">
                             <h3>Item List</h3>
+                            <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
                             <a href="/ireserve/admin/inventory_add.php" class="btn">Add Item</a>
                         </div>
 
@@ -104,6 +80,7 @@ require_once __DIR__ . '/../config.php';
                                     <td>Image</td>
                                     <td>Item Name</td>
                                     <td>Category</td>
+                                    <td>Location</td>
                                     <td>Quantity</td>
                                     <td>Status</td>
                                     <td>Action</td>
@@ -148,6 +125,7 @@ require_once __DIR__ . '/../config.php';
                                     <td><img src="<?php echo $row['image_url'] ?: 'assets/images/no-image.png'; ?>" alt="item" class="item-img"></td>
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['location'] ?? 'Not specified'); ?></td>
                                     <td><?php echo (int)$row['quantity']; ?></td>
                                     <td><span class="status <?php echo htmlspecialchars($row['status']); ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                     <td>
@@ -162,7 +140,7 @@ require_once __DIR__ . '/../config.php';
                                 } else {
                                 ?>
                                 <tr>
-                                    <td colspan="6" style="text-align:center;color:#666;">No items found.</td>
+                                    <td colspan="7" style="text-align:center;color:#666;">No items found.</td>
                                 </tr>
                                 <?php
                                 }
@@ -310,7 +288,7 @@ require_once __DIR__ . '/../config.php';
             </div>
         </div>
 
-        <script src="/ireserve/assets/js/admin.js"></script>
+        <script src="/ireserve/assets/js/admin.js?v=8"></script>
         <script>
             function showAddCategoryModal() {
                 document.getElementById('addCategoryModal').style.display = 'flex';

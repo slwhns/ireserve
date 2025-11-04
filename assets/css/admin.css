@@ -283,6 +283,178 @@ body {
     font-size: 1rem;
 }
 
+/* ======================= Search Results Dropdown ====================== */
+.search-results {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideDown 0.2s ease;
+}
+
+.search-results-container {
+    padding: 8px;
+}
+
+.search-section {
+    margin-bottom: 10px;
+}
+
+.search-section:last-child {
+    margin-bottom: 0;
+}
+
+.search-section-title {
+    padding: 10px 12px 8px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--blue);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--black1);
+    transition: all 0.2s ease;
+}
+
+.search-item:hover {
+    background: rgba(42, 33, 133, 0.08);
+}
+
+.search-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+}
+
+.search-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f6f7fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue);
+    font-size: 20px;
+}
+
+.search-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-item-title {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--black1);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-item-subtitle {
+    font-size: 12px;
+    color: var(--black2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.role-badge,
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.role-badge.admin {
+    background: linear-gradient(135deg, var(--blue), rgba(42, 33, 133, 0.8));
+    color: var(--white);
+}
+
+.role-badge.user {
+    background: #e9f7ef;
+    color: #1e7e34;
+}
+
+.status-badge.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.approved {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.taken {
+    background: #e7e3ff;
+    color: #4c2a85;
+}
+
+.status-badge.rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.returned {
+    background: #d4edda;
+    color: #155724;
+}
+
+.no-results {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--black2);
+}
+
+.no-results i {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.no-results p {
+    margin: 0;
+    font-size: 14px;
+}
+
 .user {
     position: relative;
     width: 50px;
@@ -300,6 +472,25 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* ======================= Welcome Message ====================== */
+.welcome-message {
+    padding: 20px 20px 10px 20px;
+    margin-bottom: 10px;
+}
+
+.welcome-message h1 {
+    font-size: 1.8rem;
+    color: var(--blue);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.welcome-message p {
+    font-size: 1rem;
+    color: var(--black2);
+    font-weight: 400;
 }
 
 /* ======================= Cards ====================== */
@@ -478,11 +669,21 @@ body {
 @media (max-width: 991px) {
     .navigation {
         left: -300px;
+        width: 300px; /* Full width when shown */
     }
 
     .navigation.active {
         left: 0;
         width: 300px;
+    }
+    
+    /* On tablet/mobile, always show text when sidebar is visible */
+    .navigation.active ul li a .title {
+        display: block !important;
+    }
+    
+    .navigation.active ul li.logo a .icon img {
+        display: none !important;
     }
 
     .main {
@@ -496,43 +697,130 @@ body {
 
     .cardBox {
         grid-template-columns: repeat(2, 1fr);
+        padding: 15px;
+        grid-gap: 20px;
+    }
+    
+    .welcome-message {
+        padding: 15px;
+    }
+    
+    .welcome-message h1 {
+        font-size: 1.5rem;
     }
 }
 
 @media (max-width: 768px) {
     .details {
         grid-template-columns: 1fr;
+        padding: 15px;
     }
+    
     .recentOrders {
         overflow-x: auto;
     }
+    
     .status.inProgress {
         white-space: nowrap;
+    }
+    
+    .topbar {
+        padding: 10px 15px;
+    }
+    
+    .search {
+        width: 300px;
+        margin: 0 5px;
+    }
+    
+    .search label input {
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .cardBox {
+        padding: 10px;
+        grid-gap: 15px;
+    }
+    
+    .cardBox .card {
+        padding: 20px;
+    }
+    
+    .welcome-message h1 {
+        font-size: 1.3rem;
+    }
+    
+    .welcome-message p {
+        font-size: 0.9rem;
+    }
+    
+    /* Search results responsive */
+    .search-results {
+        max-height: 400px;
+        width: calc(100% + 10px);
+        left: -5px;
+    }
+    
+    .search-item {
+        padding: 8px 10px;
+    }
+    
+    .search-avatar,
+    .search-item-icon {
+        width: 35px;
+        height: 35px;
     }
 }
 
 @media (max-width: 480px) {
     .cardBox {
         grid-template-columns: repeat(1, 1fr);
+        padding: 10px;
+        grid-gap: 12px;
     }
+    
+    .cardBox .card {
+        padding: 18px;
+    }
+    
+    .cardBox .card .numbers {
+        font-size: 1.8rem;
+    }
+    
+    .cardBox .card .cardName {
+        font-size: 0.9rem;
+    }
+    
+    .cardBox .card .iconBx {
+        font-size: 2rem;
+    }
+    
     .cardHeader h2 {
         font-size: 20px;
     }
+    
     .user {
         min-width: 40px;
+        width: 40px;
+        height: 40px;
     }
+    
     .navigation {
         width: 100%;
         left: -100%;
         z-index: 1000;
     }
+    
     .navigation.active {
         width: 100%;
         left: 0;
     }
+    
     .toggle {
         z-index: 10001;
     }
+    
     .main.active .toggle {
         color: #fff;
         position: fixed;

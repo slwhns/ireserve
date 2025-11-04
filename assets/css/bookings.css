@@ -29,6 +29,12 @@
     border: 1px solid #fca5a5;
 }
 
+.badge-taken {
+    background: #e0e7ff;
+    color: #3730a3;
+    border: 1px solid #a5b4fc;
+}
+
 .badge-returned {
     background: #dbeafe;
     color: #1e40af;
@@ -48,6 +54,8 @@
     font-weight: 500;
     font-size: 13px;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: fit-content;
 }
 
 .btn-approve {
@@ -67,6 +75,16 @@
 
 .btn-reject:hover {
     background: #fca5a5;
+    transform: translateY(-1px);
+}
+
+.btn-taken {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.btn-taken:hover {
+    background: #c7d2fe;
     transform: translateY(-1px);
 }
 
@@ -386,4 +404,210 @@
 .modal .actions button:focus {
     outline: 2px solid #1e4fff;
     outline-offset: 2px;
+}
+
+/* ====================== Responsive Design ========================== */
+
+/* Tablets and below (991px) */
+@media (max-width: 991px) {
+    .details .inventoryTable {
+        padding: 25px;
+    }
+    
+    .filterRow {
+        flex-wrap: wrap;
+    }
+    
+    .filterRow form {
+        width: 100%;
+    }
+    
+    .filterRow > div {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+    .details {
+        padding: 15px;
+    }
+    
+    .details .inventoryTable {
+        padding: 20px;
+        overflow-x: auto;
+    }
+    
+    .cardHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .cardHeader h3 {
+        font-size: 1.25rem;
+    }
+    
+    /* Make table scrollable */
+    .tableWrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .tableWrap table {
+        min-width: 900px;
+    }
+    
+    .filterRow {
+        margin-bottom: 15px;
+    }
+    
+    .filterRow form {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filterRow input,
+    .filterRow select,
+    .filterRow button {
+        width: 100%;
+    }
+    
+    /* Action buttons */
+    .action-btn {
+        flex-direction: column;
+        gap: 6px;
+        align-items: stretch;
+    }
+    
+    .action-btn .btn-sm {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Modal adjustments */
+    .modal-content {
+        width: 95%;
+        max-width: 500px;
+    }
+    
+    .modal-header {
+        padding: 20px 25px;
+    }
+    
+    .modal-body {
+        padding: 25px;
+    }
+    
+    .modal-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+    .details {
+        padding: 10px;
+    }
+    
+    .details .inventoryTable {
+        padding: 15px;
+        border-radius: 15px;
+    }
+    
+    .cardHeader h3 {
+        font-size: 1.1rem;
+    }
+    
+    .btn-back-simple {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    /* Force table scroll on small screens */
+    .tableWrap table {
+        min-width: 800px;
+    }
+    
+    .tableWrap table thead td,
+    .tableWrap table tbody td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    .badge {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    
+    .action-btn .btn-sm {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    /* Modal mobile optimization */
+    .modal-content {
+        width: 98%;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-section-title {
+        font-size: 0.9rem;
+    }
+    
+    .modal-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .modal-label {
+        min-width: auto;
+        font-size: 12px;
+    }
+    
+    .modal-value {
+        font-size: 13px;
+    }
+    
+    .date-range-chip {
+        flex-direction: column;
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .date-separator {
+        transform: rotate(90deg);
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch !important;
+    }
+    
+    .pagination-info {
+        text-align: center;
+    }
+    
+    .pagination-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 }

@@ -62,9 +62,10 @@ if (!empty($_SESSION['user_id']) || !empty($_SESSION['email'])) {
 
     <div class="search">
         <label>
-            <input type="text" placeholder="Search here">
+            <input type="text" id="globalSearch" placeholder="Search users, items, bookings..." autocomplete="off">
             <i class="bi bi-search"></i>
         </label>
+        <div id="searchResults" class="search-results" style="display: none;"></div>
     </div>
 
     <div class="user">
