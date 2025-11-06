@@ -13,7 +13,7 @@ $currentPage = 'inventory';
     <title>Inventory | iReserve</title>
     <!-- Core admin styles first to ensure sidebar/layout rules load -->
     <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=4">
+    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=5">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
@@ -82,6 +82,7 @@ $currentPage = 'inventory';
                                     <td>Category</td>
                                     <td>Location</td>
                                     <td>Quantity</td>
+                                    <td>Available</td>
                                     <td>Status</td>
                                     <td>Action</td>
                                 </tr>
@@ -104,8 +105,14 @@ $currentPage = 'inventory';
                                 $totalPages = max(1, (int)ceil($totalCount / $perPage));
                                 if ($page > $totalPages) { $page = $totalPages; $offset = ($page - 1) * $perPage; }
 
-                                // Fetch paginated items with category names
-                                $stmt = $conn->prepare("SELECT i.*, c.name AS category_name
+                                // Fetch paginated items with category names and currently taken quantity
+                                // Available = total quantity - sum of quantities from active (status='taken') bookings
+                                $stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
+                                                            COALESCE((
+                                                                SELECT SUM(b.qty)
+                                                                FROM bookings b
+                                                                WHERE b.item_id = i.item_id AND b.status = 'taken'
+                                                            ), 0) AS qty_taken
                                                         FROM inventory_items i
                                                         JOIN categories c ON i.category_id = c.category_id
                                                         ORDER BY i.item_id DESC
@@ -127,12 +134,16 @@ $currentPage = 'inventory';
                                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['location'] ?? 'Not specified'); ?></td>
                                     <td><?php echo (int)$row['quantity']; ?></td>
+                                    <?php $available = max(0, ((int)$row['quantity']) - ((int)($row['qty_taken'] ?? 0))); ?>
+                                    <td><?php echo (int)$available; ?></td>
                                     <td><span class="status <?php echo htmlspecialchars($row['status']); ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                     <td>
-                                        <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>" class="edit">Edit</a>
-                                        <a href="/ireserve/admin/inventory_delete.php?id=<?php echo (int)$row['item_id']; ?>"
-                                           class="delete"
-                                           onclick="return confirm('Are you sure you want to delete this item? This action cannot be undone.');">Delete</a>
+                                        <div class="action-col">
+                                            <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>" class="edit">Edit</a>
+                                            <a href="/ireserve/admin/inventory_delete.php?id=<?php echo (int)$row['item_id']; ?>"
+                                               class="delete"
+                                               onclick="return confirm('Are you sure you want to delete this item? This action cannot be undone.');">Delete</a>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php
@@ -140,7 +151,7 @@ $currentPage = 'inventory';
                                 } else {
                                 ?>
                                 <tr>
-                                    <td colspan="7" style="text-align:center;color:#666;">No items found.</td>
+                                    <td colspan="8" style="text-align:center;color:#666;">No items found.</td>
                                 </tr>
                                 <?php
                                 }

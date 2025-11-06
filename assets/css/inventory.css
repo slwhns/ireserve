@@ -62,7 +62,7 @@
 /* Inventory Content Wrapper with Sidebar */
 .inventory-content-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 10px;
     width: 100%;
     overflow: visible;
 }
@@ -232,6 +232,17 @@
 
 .details .inventoryTable table tbody td:last-child {
     white-space: nowrap;
+}
+
+/* Stack action buttons vertically (Edit on top, Delete below) */
+.details .inventoryTable .action-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+.details .inventoryTable .action-col a {
+    margin-right: 0;
 }
 
 a.edit, button.edit {
