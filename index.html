@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>iReserve: e-Booking Item System</title>
+	<link rel="stylesheet" href="/ireserve/assets/css/landing.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body>
+
+	<!-- Top navigation -->
+	<header class="topbar">
+		<div class="container">
+			<div class="brand">
+				<img src="/ireserve/assets/images/logo.png" alt="iReserve" onerror="this.style.display='none'">
+				<span class="brand-name">iReserve</span>
+			</div>
+			<nav class="nav">
+				<a href="#how" class="nav-link">How it works</a>
+				<a href="#faq" class="nav-link">FAQ</a>
+			</nav>
+		</div>
+	</header>
+
+	<!-- Hero -->
+	<section class="hero">
+				<div class="container hero-grid">
+			<div class="hero-copy">
+				<h1>Your Tools, One Click Away</h1>
+				<p class="lead">Reserve items, equipment and resources quickly. iReserve helps students book items, request approvals and manage returns — all in a simple interface.</p>
+				<div class="hero-ctas">
+					<a class="btn primary" href="/ireserve/index.php">Login</a>
+					<a class="btn outline" href="/ireserve/index.php">Register</a>
+				</div>
+			</div>
+					<div class="hero-art">
+						<img src="/ireserve/assets/images/hero-illustration.png" alt="illustration" onerror="this.style.display='none'">
+					</div>
+            </div>
+	</section>
+
+	<!-- How it works -->
+	<section id="how" class="how">
+		<div class="container">
+			<h2>How it Works</h2>
+			<p class="muted">A simple 4-step process to reserve what you need.</p>
+			<div class="steps">
+				<div class="step">
+					<div class="icon"><i class="bi bi-search"></i></div>
+					<h3>Choose item</h3>
+					<p>Browse inventory and select the item you need.</p>
+				</div>
+				<div class="step">
+					<div class="icon"><i class="bi bi-calendar-event"></i></div>
+					<h3>Select date</h3>
+					<p>Pick the date and duration for your booking.</p>
+				</div>
+				<div class="step">
+					<div class="icon"><i class="bi bi-patch-check"></i></div>
+					<h3>Get approval</h3>
+					<p>Admin reviews and approves your request.</p>
+				</div>
+				<div class="step">
+					<div class="icon"><i class="bi bi-box-arrow-in-down-right"></i></div>
+					<h3>Collect & return</h3>
+					<p>Collect the item and return when done.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- FAQ -->
+	<section id="faq" class="faq">
+		<div class="container">
+			<h2>FAQ</h2>
+			<div class="faq-list">
+				<details>
+					<summary>Who can register?</summary>
+					<p>Only students/users can register via the public form. Admin accounts must be created by an existing admin or in the database.</p>
+				</details>
+				<details>
+					<summary>How long can I borrow an item?</summary>
+					<p>Borrowing duration depends on item and approval — see the booking form for limits.</p>
+				</details>
+				<details>
+					<summary>What happens if an item is damaged?</summary>
+					<p>Report damage to admin immediately. Policies on damage and replacement are handled by the admin team.</p>
+				</details>
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div>© <?= date('Y') ?> UPSI — iReserve</div>
+			<div class="muted">Faculty of Information Technology</div>
+		</div>
+	</footer>
+
+	<script>
+		// Simple helper to open login/register form if index.php modal present
+		function showForm(id) {
+			if (window.location.pathname.endsWith('index.php') || window.location.pathname.endsWith('/')) {
+				const el = document.getElementById(id);
+				if (el) el.classList.add('active');
+			} else {
+				// go to index page (login/register handler)
+				window.location.href = '/ireserve/index.php';
+			}
+		}
+	</script>
+
+</body>
+</html>

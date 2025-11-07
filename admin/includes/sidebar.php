@@ -5,7 +5,7 @@
         <li class="logo">
             <a href="/ireserve/admin/admin_page.php">
                 <span class="icon">
-                    <img class="brand-logo" src="/ireserve/assets/images/ireserve_logo.png" alt="iReserve logo">
+                    <img class="brand-logo" src="/ireserve/assets/images/logo.png" alt="iReserve logo">
                 </span>
                 <span class="title">iReserve</span>
             </a>

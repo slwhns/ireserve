@@ -31,11 +31,10 @@ if ($action === 'update_profile') {
         exit();
     }
     $stmt->close();
-
     // Handle profile picture upload
     $picturePath = $_SESSION['picture_url'] ?? '';
     if (isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/../uploads/profiles/';
+        $uploadDir = __DIR__ . '/../assets/images/profiles/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
@@ -48,7 +47,7 @@ if ($action === 'update_profile') {
             $targetPath = $uploadDir . $fileName;
             
             if (move_uploaded_file($_FILES['picture']['tmp_name'], $targetPath)) {
-                $picturePath = '/ireserve/uploads/profiles/' . $fileName;
+                $picturePath = '/ireserve/assets/images/profiles/' . $fileName;
                 
                 // Delete old picture if exists
                 if (!empty($_SESSION['picture_url']) && file_exists(__DIR__ . '/..' . parse_url($_SESSION['picture_url'], PHP_URL_PATH))) {
