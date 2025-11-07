@@ -66,12 +66,22 @@ $currentPage = 'inventory';
                     
                     <div class="inventory-content-wrapper">
                         <div class="inventoryTable">
-                        <div class="cardHeader">
-                            <h3>Item List</h3>
-                            <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
-                                <i class="bi bi-arrow-left"></i> Back
-                            </a>
-                            <a href="/ireserve/admin/inventory_add.php" class="btn">Add Item</a>
+                        <div class="cardHeader" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                            <div class="cardHeader-left">
+                                <h3>Item List</h3>
+                            </div>
+                            <div class="cardHeader-center" style="flex:1;display:flex;justify-content:center;">
+                                <div class="inventory-search" style="position:relative;max-width:420px;width:100%;">
+                                    <input type="text" id="inventorySearch" placeholder="Search items by name, SKU or location..." autocomplete="off" style="height:36px;padding:6px 10px;border-radius:6px;border:1px solid #ddd;width:100%;max-width:360px;">
+                                    <div id="inventorySearchResults" class="inventory-search-results" style="display:none;position:absolute;z-index:50;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);width:360px;max-height:320px;overflow:auto;top:44px;left:50%;transform:translateX(-50%);"></div>
+                                </div>
+                            </div>
+                            <div class="cardHeader-right" style="display:flex;align-items:center;gap:8px;">
+                                <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </a>
+                                <a href="/ireserve/admin/inventory_add.php" class="btn">Add Item</a>
+                            </div>
                         </div>
 
                         <table>
@@ -356,6 +366,57 @@ $currentPage = 'inventory';
                     openFeedbackModal(isSuccess ? 'success' : 'error', message);
                 }
             });
+
+            // Inventory search (calls admin/search_item.php)
+            (function(){
+                const invSearchInput = document.getElementById('inventorySearch');
+                const invResults = document.getElementById('inventorySearchResults');
+                let invTimeout = null;
+                if (!invSearchInput || !invResults) return;
+
+                function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]; }); }
+
+                invSearchInput.addEventListener('input', function(e){
+                    clearTimeout(invTimeout);
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { invResults.style.display = 'none'; invResults.innerHTML = ''; return; }
+                    invTimeout = setTimeout(()=>{
+                        fetch('/ireserve/admin/search_item.php?q=' + encodeURIComponent(q))
+                        .then(r => {
+                            if (!r.ok) {
+                                return r.text().then(t => { console.error('Search request failed', r.status, t); throw new Error('network'); });
+                            }
+                            return r.json();
+                        })
+                        .then(data => {
+                            if (!data || !data.ok) { console.error('Search endpoint returned error', data); invResults.innerHTML = '<div class="inventory-search-empty">Search error</div>'; invResults.style.display='block'; return; }
+                            if (!data.results || data.results.length === 0) { invResults.innerHTML = '<div class="inventory-search-empty">No items found</div>'; invResults.style.display='block'; return; }
+                            let html = '';
+                            data.results.forEach(item => {
+                                html += '<a href="'+ item.url +'" class="inventory-search-item">'
+                                    + '<img src="'+ escapeHtml(item.image) +'" alt="">'
+                                    + '<div class="meta">'
+                                        + '<div class="title">'+ escapeHtml(item.name) +'</div>'
+                                        + '<div class="muted">'+ escapeHtml(item.sku || '') + ' • ' + escapeHtml(item.location || 'Unknown') + ' • Qty: ' + (item.quantity||0) + '</div>'
+                                    + '</div>'
+                                + '</a>';
+                            });
+                            invResults.innerHTML = html;
+                            invResults.style.display = 'block';
+                        }).catch(err => {
+                            invResults.innerHTML = '<div class="inventory-search-empty">Search error</div>';
+                            invResults.style.display = 'block';
+                        });
+                    }, 250);
+                });
+
+                // Close results when clicking outside
+                document.addEventListener('click', function(e){
+                    if (!invSearchInput.contains(e.target) && !invResults.contains(e.target)) {
+                        invResults.style.display = 'none';
+                    }
+                });
+            })();
         </script>
     </body>
 </html>

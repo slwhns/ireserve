@@ -251,136 +251,6 @@ body {
     font-size: 2.2rem;
 }
 
-.search {
-    justify-content: center;
-    position: relative;
-    width: 400px;
-    margin: 0 10px;
-}
-
-.search label {
-    position: relative;
-    width: 100%;
-}
-
-.search label input {
-    width: 100%;
-    height: 40px;
-    border-radius: 40px;
-    padding: 5px 20px;
-    outline: none;
-    border: 1px solid var(--black2);
-    padding-left: 35px;
-    font-size: 16px;
-}
-
-.search label i {
-    position: absolute;
-    top: 0;
-    left: 10px;
-    font-size: 1rem;
-}
-
-/* ======================= Search Results Dropdown ====================== */
-.search-results {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    width: 100%;
-    max-height: 500px;
-    overflow-y: auto;
-    background: var(--white);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    z-index: 9999;
-    animation: slideDown 0.2s ease;
-}
-
-.search-results-container {
-    padding: 8px;
-}
-
-.search-section {
-    margin-bottom: 10px;
-}
-
-.search-section:last-child {
-    margin-bottom: 0;
-}
-
-.search-section-title {
-    padding: 10px 12px 8px 12px;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--blue);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.search-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--black1);
-    transition: all 0.2s ease;
-}
-
-.search-item:hover {
-    background: rgba(42, 33, 133, 0.08);
-}
-
-.search-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #f0f0f0;
-}
-
-.search-item-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: #f6f7fb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--blue);
-    font-size: 20px;
-}
-
-.search-item-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.search-item-title {
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--black1);
-    margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.search-item-subtitle {
-    font-size: 12px;
-    color: var(--black2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .role-badge,
 .status-badge {
     display: inline-block;
@@ -725,16 +595,7 @@ body {
     .topbar {
         padding: 10px 15px;
     }
-    
-    .search {
-        width: 300px;
-        margin: 0 5px;
-    }
-    
-    .search label input {
-        height: 36px;
-        font-size: 14px;
-    }
+    /* Topbar search removed; responsive search styles omitted. */
     
     .cardBox {
         padding: 10px;
@@ -754,21 +615,7 @@ body {
     }
     
     /* Search results responsive */
-    .search-results {
-        max-height: 400px;
-        width: calc(100% + 10px);
-        left: -5px;
-    }
-    
-    .search-item {
-        padding: 8px 10px;
-    }
-    
-    .search-avatar,
-    .search-item-icon {
-        width: 35px;
-        height: 35px;
-    }
+    /* Search results responsive styles removed along with topbar search. */
 }
 
 @media (max-width: 480px) {

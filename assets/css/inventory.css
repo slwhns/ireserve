@@ -843,3 +843,18 @@ a.delete:hover, button.delete:hover {
 .modal-actions .btn-cancel:hover {
     background: #e0e0e0;
 }
+
+/* Inventory page inline search styles */
+.inventory-search input {
+    width: 360px;
+}
+.inventory-search-results {
+    padding: 8px;
+}
+.inventory-search-item {
+    display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;color:var(--black1);text-decoration:none;border-bottom:1px solid #f6f6f6;
+}
+.inventory-search-item img{width:48px;height:48px;object-fit:cover;border-radius:6px}
+.inventory-search-item .meta{display:flex;flex-direction:column}
+.inventory-search-item .title{font-weight:600}
+.inventory-search-empty{padding:12px;color:#666;text-align:center}
