@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 require_once __DIR__ . '/../config.php';
 
@@ -22,6 +23,8 @@ $description = trim($_POST['description'] ?? '');
 $quantity    = (int)$_POST['quantity'];
 $status      = $_POST['status'];
 $location    = trim($_POST['location'] ?? '');
+$latitude    = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
+$longitude   = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
 $created_by  = $_SESSION['user_id'] ?? null; // Assuming user_id is stored in session
 $image_url   = null;
 
@@ -75,21 +78,23 @@ if (!empty($_FILES['image']['name'])) {
 }
 
 // Use prepared statement to prevent SQL injection
-$sql = "INSERT INTO inventory_items (name, category_id, sku, description, quantity, status, location, image_url, created_by) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO inventory_items (name, category_id, sku, description, quantity, status, location, latitude, longitude, image_url, created_by) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sississsi", 
+        "sisissiddsi", 
         $name, 
         $category_id, 
         $sku, 
         $description, 
         $quantity, 
         $status, 
-        $location, 
+        $location,
+        $latitude,
+        $longitude,
         $image_url, 
         $created_by
     );

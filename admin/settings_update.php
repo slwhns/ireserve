@@ -1,8 +1,8 @@
 <?php
-
+session_name('ireserve_admin');
 session_start();
 if (!isset($_SESSION['email'])) {
-    header("Location: index.php");
+    header("Location: /ireserve/index.php");
     exit();
 }
 

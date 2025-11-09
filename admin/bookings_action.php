@@ -1,18 +1,17 @@
 <?php
 // bookings_action.php
-ob_start(); // Start output buffering to catch any unwanted output
-header('Content-Type: application/json');
-
-// Auth and DB
-require_once __DIR__ . '/includes/auth.php'; // starts session and includes config.php
-ob_end_clean(); // Clear any output from includes
+session_name('ireserve_admin');
+session_start();
+require_once __DIR__ . '/../config.php';
 
 // Ensure admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   http_response_code(403);
-  echo json_encode(['ok' => false, 'message' => 'Forbidden']);
+  echo json_encode(['ok' => false, 'message' => 'Forbidden - Role: ' . ($_SESSION['role'] ?? 'NOT SET')]);
   exit;
 }
+
+header('Content-Type: application/json');
 
 $valid = ['approved','rejected','taken','returned'];
 $action = $_POST['action'] ?? '';

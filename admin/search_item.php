@@ -3,9 +3,10 @@ header('Content-Type: application/json; charset=utf-8');
 // Minimal search endpoint for admin to find inventory items by name, sku, item_code or location
 require_once __DIR__ . '/../config.php';
 
-// Basic simple auth check (session)
+// Basic simple auth check (session) - using admin session
+session_name('ireserve_admin');
 session_start();
-if (empty($_SESSION['user_id'])) {
+if (empty($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
     echo json_encode(['ok' => false, 'error' => 'unauthorized']);
     http_response_code(401);
     exit;

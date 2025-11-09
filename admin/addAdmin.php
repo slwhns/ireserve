@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Restrict to admin
@@ -15,17 +16,23 @@ require_once '../config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Admin | iReserve</title>
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
     <link rel="stylesheet" href="/ireserve/assets/css/inventory_form.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-<div class="container">
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+    <!-- ============ Navigation Bar ============ -->
+    <div class="container">
+        <!-- ============ Sidebar ============ -->
+        <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
-    <div class="main">
+        <!-- ============ Main Content ============ -->
+        <div class="main">
+            <!-- ============ Top Bar ============ -->
             <?php include __DIR__ . '/includes/topbar.php'; ?>
-        <div class="form-container">
+            
+            <!-- ====================== Form Content ====================== -->
+            <div class="form-container">
             <div class="form-card">
                 <div class="form-header">
                     <h2><i class="bi bi-person-plus"></i> Add Admin</h2>

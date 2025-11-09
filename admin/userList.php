@@ -57,27 +57,26 @@ if ($stmtU) {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin & User List | iReserve</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-	<link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=8">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=8">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
 
+        <!-- ============ Navigation Bar ============ -->
         <div class="container">
-            <!-- ====== Sidebar (navigation) ====== -->
+            <!-- ============ Sidebar ============ -->
             <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
-            <!-- ====== Main ====== -->
+            <!-- ============ Main Content ============ -->
             <div class="main">
-                <!-- Topbar include (dynamic user image) -->
+                <!-- ============ Top Bar ============ -->
                 <?php include __DIR__ . '/includes/topbar.php'; ?>
 
-                <!-- Two cards in a responsive grid: Admins & Users -->
-                
+                <!-- ====================== Page Actions ====================== -->
                 <div class="pageActions">
                     <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
                         <i class="bi bi-arrow-left"></i> Back
@@ -141,16 +140,17 @@ if ($stmtU) {
                                             <td class="user-cell">
                                                 <?php 
                                                 $defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/%3E%3C/svg%3E';
-                                                $img = !empty($row['picture_url']) ? $row['picture_url'] : $defaultAvatar; 
+                                                $defaultAdminImg = '/ireserve/assets/images/admin.png';
+                                                $img = !empty($row['picture_url']) ? $row['picture_url'] : $defaultAdminImg; 
                                                 ?>
                                                 <img class="avatar" src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($row['name']) ?>" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23666%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z%22/%3E%3C/svg%3E';">
                                                 <span><?= htmlspecialchars($row['name']) ?></span>
                                             </td>
                                             <td><?= htmlspecialchars($row['email']) ?></td>
                                             <td class="action">
-                                                <a class="icon-btn" href="view-user.php?id=<?= (int)$row['id'] ?>" title="View"><i class="bi bi-eye"></i></a>
-                                                <a class="icon-btn" href="edit-user.php?id=<?= (int)$row['id'] ?>" title="Edit"><i class="bi bi-pencil-square"></i></a>
-                                                <a class="icon-btn danger" href="delete-user.php?id=<?= (int)$row['id'] ?>" title="Delete" onclick="return confirm('Delete this user?')"><i class="bi bi-trash3"></i></a>
+                                                <a class="icon-btn" href="/ireserve/admin/view-user.php?id=<?= (int)$row['id'] ?>" title="View"><i class="bi bi-eye"></i></a>
+                                                <a class="icon-btn" href="/ireserve/admin/edit-user.php?id=<?= (int)$row['id'] ?>" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                                <a class="icon-btn danger" href="/ireserve/admin/delete-user.php?id=<?= (int)$row['id'] ?>" title="Delete" onclick="return confirm('Delete this admin?')"><i class="bi bi-trash3"></i></a>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -224,9 +224,9 @@ if ($stmtU) {
                                             </td>
                                             <td><?= htmlspecialchars($row['email']) ?></td>
                                             <td class="action">
-                                                <a class="icon-btn" href="view-user.php?id=<?= (int)$row['id'] ?>" title="View"><i class="bi bi-eye"></i></a>
-                                                <a class="icon-btn" href="edit-user.php?id=<?= (int)$row['id'] ?>" title="Edit"><i class="bi bi-pencil-square"></i></a>
-                                                <a class="icon-btn danger" href="delete-user.php?id=<?= (int)$row['id'] ?>" title="Delete" onclick="return confirm('Delete this user?')"><i class="bi bi-trash3"></i></a>
+                                                <a class="icon-btn" href="/ireserve/admin/view-user.php?id=<?= (int)$row['id'] ?>" title="View"><i class="bi bi-eye"></i></a>
+                                                <a class="icon-btn" href="/ireserve/admin/edit-user.php?id=<?= (int)$row['id'] ?>" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                                <a class="icon-btn danger" href="/ireserve/admin/delete-user.php?id=<?= (int)$row['id'] ?>" title="Delete" onclick="return confirm('Delete this user?')"><i class="bi bi-trash3"></i></a>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>

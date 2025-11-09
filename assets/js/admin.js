@@ -1,3 +1,40 @@
+// ============================================
+// Dark Mode Toggle
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for saved dark mode preference or default to light mode
+    const darkMode = localStorage.getItem('adminDarkMode');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    
+    // Apply saved preference on page load
+    if (darkMode === 'enabled') {
+        document.body.classList.add('dark-mode');
+        if (darkModeToggle) {
+            darkModeToggle.querySelector('i').classList.remove('ri-moon-line');
+            darkModeToggle.querySelector('i').classList.add('ri-sun-line');
+        }
+    }
+    
+    // Toggle dark mode
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            
+            // Update icon
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('ri-moon-line');
+                icon.classList.add('ri-sun-line');
+                localStorage.setItem('adminDarkMode', 'enabled');
+            } else {
+                icon.classList.remove('ri-sun-line');
+                icon.classList.add('ri-moon-line');
+                localStorage.setItem('adminDarkMode', null);
+            }
+        });
+    }
+});
+
 let list = document.querySelectorAll(".navigation li");
 
 function activeLink() {

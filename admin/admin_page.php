@@ -1,8 +1,8 @@
 <?php
-
+session_name('ireserve_admin');
 session_start();
 if (!isset($_SESSION['email'])) {
-    header("Location: index.php");
+    header("Location: /ireserve/index.php");
     exit();
 }
 
@@ -195,15 +195,11 @@ if ($stmt) {
 
                     <!-- ====================== Top Item Booked ====================== -->
                     <div class="topBookings">
-                        <div class="cardHeader">
-                            <h2>Top Item Bookings</h2>
-                        </div>
-
                         <table>
                             <thead>
                                 <tr>
-                                    <td>Equipment</td>
-                                    <td>Bookings</td>
+                                    <td>Top Item Bookings</td>
+                                    <td>Total</td>
                                 </tr>
                             </thead>
                             <tbody>

@@ -16,12 +16,13 @@ require_once 'includes/header.php';
 require_once 'includes/sidebar.php';
 ?>
 
-<!-- Main Content -->
+<!-- ============ Main Content ============ -->
 <div class="main">
+    <!-- ============ Top Bar ============ -->
     <?php include 'includes/topbar.php'; ?>
 
-            <!-- Form Content -->
-            <div class="form-container">
+    <!-- ====================== Form Content ====================== -->
+    <div class="form-container">
                 <div class="form-card">
                     <div class="form-header">
                         <h2><i class="bi bi-plus-circle"></i> Add New Item</h2>
@@ -112,6 +113,33 @@ require_once 'includes/sidebar.php';
                         </div>
 
                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="latitude">
+                                    <i class="bi bi-compass"></i> Latitude
+                                </label>
+                                <input type="text" id="latitude" name="latitude" placeholder="e.g., 6.1167" step="any">
+                                <small class="form-hint">Click on map to set coordinates</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="longitude">
+                                    <i class="bi bi-compass"></i> Longitude
+                                </label>
+                                <input type="text" id="longitude" name="longitude" placeholder="e.g., 102.2833" step="any">
+                                <small class="form-hint">Click on map to set coordinates</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label>
+                                    <i class="bi bi-map"></i> Set Location on Map
+                                </label>
+                                <div id="locationMap" style="width: 100%; height: 400px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                                <small class="form-hint">Click anywhere on the map to set the item's location</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
                             <div class="form-group full-width">
                                 <label for="description">
                                     <i class="bi bi-text-left"></i> Description
@@ -149,5 +177,69 @@ require_once 'includes/sidebar.php';
             </div>
         </div>
     </div>
+
+        </div>
+    </div>
+
+<script>
+    let map, marker;
+    
+    function initMap() {
+        // Default location (Kota Bharu, Kelantan, Malaysia)
+        const defaultLocation = { lat: 6.1167, lng: 102.2833 };
+        
+        map = new google.maps.Map(document.getElementById('locationMap'), {
+            zoom: 13,
+            center: defaultLocation,
+            mapTypeControl: true,
+            streetViewControl: true
+        });
+        
+        // Add click listener to map
+        map.addListener('click', (event) => {
+            placeMarker(event.latLng);
+        });
+        
+        // Check if there are existing coordinates
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        
+        if (latInput.value && lngInput.value) {
+            const existingLocation = {
+                lat: parseFloat(latInput.value),
+                lng: parseFloat(lngInput.value)
+            };
+            map.setCenter(existingLocation);
+            placeMarker(new google.maps.LatLng(existingLocation.lat, existingLocation.lng));
+        }
+    }
+    
+    function placeMarker(location) {
+        if (marker) {
+            marker.setPosition(location);
+        } else {
+            marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP
+            });
+            
+            // Update coordinates when marker is dragged
+            marker.addListener('dragend', () => {
+                updateCoordinates(marker.getPosition());
+            });
+        }
+        
+        updateCoordinates(location);
+        map.panTo(location);
+    }
+    
+    function updateCoordinates(location) {
+        document.getElementById('latitude').value = location.lat().toFixed(6);
+        document.getElementById('longitude').value = location.lng().toFixed(6);
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
 
 <?php require_once 'includes/footer.php'; ?>

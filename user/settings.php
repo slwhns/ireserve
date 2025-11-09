@@ -1,0 +1,372 @@
+<?php
+session_name('ireserve_user');
+session_start();
+require_once __DIR__ . '/../config.php';
+
+if (!isset($_SESSION['email'])) {
+    header("Location: /ireserve/index.php");
+    exit();
+}
+
+// Get user information
+$user_id = $_SESSION['user_id'];
+$user_email = $_SESSION['email'];
+
+// Fetch user details
+$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, course, faculty, picture_url FROM users WHERE id = ?");
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+
+$user_name = $user['name'];
+$user_matrics = $user['matrics_number'] ?? '';
+$user_phone = $user['phone_number'] ?? '';
+$user_course = $user['course'] ?? '';
+$user_faculty = $user['faculty'] ?? '';
+$user_picture = !empty($user['picture_url']) ? $user['picture_url'] : '/ireserve/assets/images/user.png';
+
+// Handle form submissions
+$success_message = '';
+$error_message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['update_picture'])) {
+        if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+            $allowed_types = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            $file_type = $_FILES['profile_picture']['type'];
+            $file_size = $_FILES['profile_picture']['size'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+            
+            if (!in_array($file_type, $allowed_types)) {
+                $error_message = "Invalid file type. Only JPG, PNG, and GIF are allowed.";
+            } elseif ($file_size > $max_size) {
+                $error_message = "File size must be less than 5MB.";
+            } else {
+                // Create upload directory if it doesn't exist
+                $upload_dir = __DIR__ . '/../assets/images/users/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
+                }
+                
+                // Generate unique filename
+                $file_extension = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
+                $new_filename = 'user_' . $user_id . '_' . time() . '.' . $file_extension;
+                $upload_path = $upload_dir . $new_filename;
+                $db_path = '/ireserve/assets/images/users/' . $new_filename;
+                
+                // Delete old profile picture if it exists and is not the default
+                if (!empty($user['picture_url']) && 
+                    $user['picture_url'] !== '/ireserve/assets/images/user.png' &&
+                    $user['picture_url'] !== '/ireserve/assets/images/logo.png') {
+                    $old_file = __DIR__ . '/..' . str_replace('/ireserve/', '/', $user['picture_url']);
+                    // Only delete if it's in the users directory and belongs to this user
+                    if (file_exists($old_file) && strpos($user['picture_url'], '/assets/images/users/') !== false) {
+                        unlink($old_file);
+                    }
+                }
+                
+                // Upload new file
+                if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $upload_path)) {
+                    // Update database
+                    $update_pic = $conn->prepare("UPDATE users SET picture_url = ? WHERE id = ?");
+                    $update_pic->bind_param('si', $db_path, $user_id);
+                    
+                    if ($update_pic->execute()) {
+                        $user_picture = $db_path;
+                        $user['picture_url'] = $db_path; // Update the user array
+                        header("Location: /ireserve/user/settings.php?success=picture_updated");
+                        exit();
+                    } else {
+                        $error_message = "Failed to update profile picture in database.";
+                    }
+                    $update_pic->close();
+                } else {
+                    $error_message = "Failed to upload file.";
+                }
+            }
+        } else {
+            $error_message = "Please select a file to upload.";
+        }
+    }
+    
+    if (isset($_POST['remove_picture'])) {
+        // Delete current profile picture if it exists and is not the default
+        if (!empty($user['picture_url']) && 
+            $user['picture_url'] !== '/ireserve/assets/images/user.png' &&
+            $user['picture_url'] !== '/ireserve/assets/images/logo.png') {
+            $old_file = __DIR__ . '/..' . str_replace('/ireserve/', '/', $user['picture_url']);
+            // Only delete if it's in the users directory
+            if (file_exists($old_file) && strpos($user['picture_url'], '/assets/images/users/') !== false) {
+                unlink($old_file);
+            }
+        }
+        
+        // Reset to default
+        $default_pic = '/ireserve/assets/images/user.png';
+        $update_pic = $conn->prepare("UPDATE users SET picture_url = ? WHERE id = ?");
+        $update_pic->bind_param('si', $default_pic, $user_id);
+        
+        if ($update_pic->execute()) {
+            $user_picture = $default_pic;
+            $user['picture_url'] = $default_pic; // Update the user array
+            header("Location: /ireserve/user/settings.php?success=picture_removed");
+            exit();
+        } else {
+            $error_message = "Failed to remove profile picture.";
+        }
+        $update_pic->close();
+    }
+    
+    if (isset($_POST['update_profile'])) {
+        $name = trim($_POST['name']);
+        $matrics_number = trim($_POST['matrics_number']);
+        $phone_number = trim($_POST['phone_number']);
+        $course = trim($_POST['course']);
+        $faculty = trim($_POST['faculty']);
+        $email = trim($_POST['email']);
+        
+        if (!empty($name) && !empty($email)) {
+            // Check if email is already taken by another user
+            $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+            $check_stmt->bind_param('si', $email, $user_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows > 0) {
+                $error_message = "Email is already taken by another user.";
+            } else {
+                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, course = ?, faculty = ?, email = ? WHERE id = ?");
+                $update_stmt->bind_param('ssssssi', $name, $matrics_number, $phone_number, $course, $faculty, $email, $user_id);
+                
+                if ($update_stmt->execute()) {
+                    $_SESSION['name'] = $name;
+                    $_SESSION['email'] = $email;
+                    header("Location: /ireserve/user/settings.php?success=profile_updated");
+                    exit();
+                } else {
+                    $error_message = "Failed to update profile.";
+                }
+                $update_stmt->close();
+            }
+            $check_stmt->close();
+        } else {
+            $error_message = "Name and email are required.";
+        }
+    }
+    
+    if (isset($_POST['change_password'])) {
+        $current_password = $_POST['current_password'];
+        $new_password = $_POST['new_password'];
+        $confirm_password = $_POST['confirm_password'];
+        
+        if ($new_password !== $confirm_password) {
+            $error_message = "New passwords do not match.";
+        } elseif (strlen($new_password) < 6) {
+            $error_message = "Password must be at least 6 characters long.";
+        } else {
+            // Verify current password
+            $pwd_stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+            $pwd_stmt->bind_param('i', $user_id);
+            $pwd_stmt->execute();
+            $pwd_result = $pwd_stmt->get_result();
+            $pwd_data = $pwd_result->fetch_assoc();
+            
+            if (password_verify($current_password, $pwd_data['password'])) {
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                $update_pwd = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $update_pwd->bind_param('si', $hashed_password, $user_id);
+                
+                if ($update_pwd->execute()) {
+                    header("Location: /ireserve/user/settings.php?success=password_changed");
+                    exit();
+                } else {
+                    $error_message = "Failed to change password.";
+                }
+                $update_pwd->close();
+            } else {
+                $error_message = "Current password is incorrect.";
+            }
+            $pwd_stmt->close();
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - iReserve</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/ireserve/assets/css/style.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/settings.css">
+</head>
+<body>
+    <?php include __DIR__ . '/includes/header.php'; ?>
+
+    <div class="settings-container">
+        <div class="back-button-container-top">
+            <a href="/ireserve/user/user_page.php" class="btn-back">
+                <i class="ri-arrow-left-line"></i> Back
+            </a>
+        </div>
+
+        <div class="settings-header">
+            <h1><i class="ri-settings-3-line"></i> Account Settings</h1>
+            <p>Manage your account information and preferences</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Profile Picture -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="ri-image-line"></i> Profile Picture</h2>
+                </div>
+                <div class="profile-picture-section">
+                    <div class="current-picture">
+                        <img src="<?php echo htmlspecialchars($user_picture); ?>" alt="Profile Picture" id="profilePreview">
+                    </div>
+                    <form method="POST" enctype="multipart/form-data" class="settings-form">
+                        <div class="form-group">
+                            <label for="profile_picture">Upload New Picture</label>
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/jpeg,image/png,image/jpg,image/gif">
+                            <small>Max size: 5MB. Formats: JPG, PNG, GIF</small>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" name="update_picture" class="btn btn-primary">
+                                <i class="ri-upload-line"></i> Upload Picture
+                            </button>
+                            <?php if ($user_picture !== '/ireserve/assets/images/user.png'): ?>
+                            <button type="submit" name="remove_picture" class="btn btn-secondary" onclick="return confirm('Are you sure you want to remove your profile picture?')">
+                                <i class="ri-delete-bin-line"></i> Remove Picture
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile Information -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="ri-user-line"></i> Profile Information</h2>
+                </div>
+                <form method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="matrics_number">Matrics Number</label>
+                        <input type="text" id="matrics_number" name="matrics_number" value="<?php echo htmlspecialchars($user_matrics); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="course">Course</label>
+                        <input type="text" id="course" name="course" value="<?php echo htmlspecialchars($user_course); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="faculty">Faculty</label>
+                        <input type="text" id="faculty" name="faculty" value="<?php echo htmlspecialchars($user_faculty); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user_email); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="tel" id="phone_number" name="phone_number" value="<?php echo htmlspecialchars($user_phone); ?>">
+                    </div>
+                    <button type="submit" name="update_profile" class="btn btn-primary">
+                        <i class="ri-save-line"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="ri-lock-password-line"></i> Change Password</h2>
+                </div>
+                <form method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" id="new_password" name="new_password" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="6" required>
+                    </div>
+                    <button type="submit" name="change_password" class="btn btn-primary">
+                        <i class="ri-key-line"></i> Change Password
+                    </button>
+                </form>
+            </div>
+
+            <!-- Account Info -->
+            <div class="settings-card full-width">
+                <div class="card-header">
+                    <h2><i class="ri-information-line"></i> Account Information</h2>
+                </div>
+                <div class="info-grid-horizontal">
+                    <div class="info-item">
+                        <i class="ri-user-line"></i>
+                        <div>
+                            <strong>Name</strong>
+                            <p><?php echo htmlspecialchars($user_name); ?></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="ri-mail-line"></i>
+                        <div>
+                            <strong>Email</strong>
+                            <p><?php echo htmlspecialchars($user_email); ?></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="ri-shield-user-line"></i>
+                        <div>
+                            <strong>Role</strong>
+                            <p>User</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div id="notificationIcon" class="notification-icon"></div>
+            <p id="notificationMessage"></p>
+            <button id="notificationBtnOk" class="btn-ok">OK</button>
+        </div>
+    </div>
+
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+
+    <script src="/ireserve/assets/js/script.js"></script>
+    <script>
+        // Profile picture preview
+        document.getElementById('profile_picture').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('profilePreview').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
+

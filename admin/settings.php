@@ -1,8 +1,8 @@
 <?php
-
+session_name('ireserve_admin');
 session_start();
 if (!isset($_SESSION['email'])) {
-    header("Location: index.php");
+    header("Location: /ireserve/index.php");
     exit();
 }
 
@@ -32,21 +32,27 @@ if ($catResult) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | iReserve</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
     <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
+    <!-- ============ Navigation Bar ============ -->
     <div class="container">
+        <!-- ============ Sidebar ============ -->
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
         
+        <!-- ============ Main Content ============ -->
         <div class="main">
+            <!-- ============ Top Bar ============ -->
             <?php include __DIR__ . '/includes/topbar.php'; ?>
             
+            <!-- ====================== Settings Content ====================== -->
             <div class="settings-wrapper">
+                <!-- ====================== Page Actions ====================== -->
                 <div class="pageActions">
                     <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
                         <i class="bi bi-arrow-left"></i> Back

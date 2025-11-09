@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 require_once __DIR__ . '/../config.php';
 
@@ -10,24 +11,24 @@ $currentPage = 'inventory';
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory | iReserve</title>
-    <!-- Core admin styles first to ensure sidebar/layout rules load -->
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=5">
+        <title>Inventory | iReserve</title>
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+        <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=5">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
 
+        <!-- ============ Navigation Bar ============ -->
         <div class="container">
             <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
-            <!-- ====== Main ====== -->
+            <!-- ============ Main Content ============ -->
             <div class="main">
 
-                <!-- Topbar -->
+                <!-- ============ Top Bar ============ -->
                 <?php include __DIR__ . '/includes/topbar.php'; ?>
                 
-                <!-- ====== Content ====== -->
+                <!-- ====================== Inventory Content ====================== -->
                 <div class="details">
                     <?php
                     // Display success messages
@@ -72,7 +73,7 @@ $currentPage = 'inventory';
                             </div>
                             <div class="cardHeader-center" style="flex:1;display:flex;justify-content:center;">
                                 <div class="inventory-search" style="position:relative;max-width:420px;width:100%;">
-                                    <input type="text" id="inventorySearch" placeholder="Search items by name, SKU or location..." autocomplete="off" style="height:36px;padding:6px 10px;border-radius:6px;border:1px solid #ddd;width:100%;max-width:360px;">
+                                    <input type="text" id="inventorySearch" placeholder="Search items by name..." autocomplete="off" style="height:36px;padding:6px 10px;border-radius:6px;border:1px solid #ddd;width:100%;max-width:360px;">
                                     <div id="inventorySearchResults" class="inventory-search-results" style="display:none;position:absolute;z-index:50;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);width:360px;max-height:320px;overflow:auto;top:44px;left:50%;transform:translateX(-50%);"></div>
                                 </div>
                             </div>
@@ -91,8 +92,8 @@ $currentPage = 'inventory';
                                     <td>Item Name</td>
                                     <td>Category</td>
                                     <td>Location</td>
-                                    <td>Quantity</td>
                                     <td>Available</td>
+                                    <td>Total Qty</td>
                                     <td>Status</td>
                                     <td>Action</td>
                                 </tr>
@@ -137,16 +138,22 @@ $currentPage = 'inventory';
 
                                 if ($result && $result->num_rows > 0) {
                                     while ($row = $result->fetch_assoc()) {
+                                        // Calculate available quantity
+                                        $total_qty = (int)$row['quantity'];
+                                        $qty_taken = (int)($row['qty_taken'] ?? 0);
+                                        $available = max(0, $total_qty - $qty_taken);
+                                        
+                                        // Display current status as-is from database
+                                        $current_status = $row['status'];
                                 ?>
                                 <tr>
                                     <td><img src="<?php echo $row['image_url'] ?: 'assets/images/no-image.png'; ?>" alt="item" class="item-img"></td>
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['location'] ?? 'Not specified'); ?></td>
-                                    <td><?php echo (int)$row['quantity']; ?></td>
-                                    <?php $available = max(0, ((int)$row['quantity']) - ((int)($row['qty_taken'] ?? 0))); ?>
-                                    <td><?php echo (int)$available; ?></td>
-                                    <td><span class="status <?php echo htmlspecialchars($row['status']); ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                    <td><?php echo $available; ?></td>
+                                    <td><?php echo $total_qty; ?></td>
+                                    <td><span class="status <?php echo htmlspecialchars($current_status); ?>"><?php echo ucfirst($current_status); ?></span></td>
                                     <td>
                                         <div class="action-col">
                                             <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>" class="edit">Edit</a>

@@ -26,7 +26,7 @@ function isActiveForm($formName, $activeForm) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>iReserve: e-Booking Item System</title>
-        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/login_style.css">
     </head>
 
     <body>
@@ -48,6 +48,10 @@ function isActiveForm($formName, $activeForm) {
                     <h2>Register</h2>
                     <?= showError($errors['register']); ?>
                     <input type="text" name="name" placeholder="Name" required>
+                    <input type="text" name="matrics_number" placeholder="Matrics Number" required>
+                    <input type="tel" name="phone_number" placeholder="Phone Number" required>
+                    <input type="text" name="course" placeholder="Course" required>
+                    <input type="text" name="faculty" placeholder="Faculty" required>
                     <input type="email" name="email" placeholder="Email" required>
                     <input type="password" name="password" placeholder="Password" required>
                     <input type="hidden" name="role" value="user">

@@ -67,14 +67,14 @@ $stmt->close();
 /* Fetch page */
 $sqlList = "
     SELECT
-        b.ref_code, b.qty, b.start_at, b.end_at, b.status, b.purpose, b.admin_note,
+        b.ref_code, b.qty, b.start_at, b.end_at, b.status, b.purpose, b.admin_note, b.created_at,
         i.name AS item_name, i.sku AS item_code, i.location AS item_location,
         u.name AS user_name, u.matrics_number, u.phone_number
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
     LEFT JOIN users u ON u.id = b.user_id
     $whereSql
-    ORDER BY b.start_at DESC
+    ORDER BY b.created_at DESC
     LIMIT ? OFFSET ?
 ";
 $stmt = $conn->prepare($sqlList);
@@ -111,11 +111,12 @@ $buildLink = function(int $p) use ($search, $status, $location){
 $showStart = $total > 0 ? ($offset + 1) : 0;
 $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookings | iReserve</title>
     <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
     <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=4">
@@ -123,10 +124,17 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
+    <!-- ============ Navigation Bar ============ -->
     <div class="container">
+        <!-- ============ Sidebar ============ -->
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
+        
+        <!-- ============ Main Content ============ -->
         <div class="main">
+            <!-- ============ Top Bar ============ -->
             <?php include __DIR__ . '/includes/topbar.php'; ?>
+            
+            <!-- ====================== Bookings Content ====================== -->
             <div class="details">
                 <div class="inventoryTable">
                     <div class="cardHeader">
@@ -138,7 +146,7 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
 
 <div class="filterRow" style="margin-bottom:12px;">
     <form method="get" style="display:flex; gap:10px; flex-wrap:wrap;">
-        <input type="text" name="q" placeholder="Search ref, user, item..." value="<?=h($search)?>">
+        <input type="text" name="q" placeholder="Search user, item..." value="<?=h($search)?>">
         <select name="status">
             <option value="">All status</option>
             <?php foreach (['pending','approved','taken','rejected','returned'] as $s): ?>

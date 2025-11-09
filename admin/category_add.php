@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Check if user is logged in and is admin

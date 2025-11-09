@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Restrict to admin
@@ -10,13 +11,13 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
 require_once '../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: userList.php');
+    header('Location: /ireserve/admin/userList.php');
     exit();
 }
 
 // Required fields
 if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['confirm_password'])) {
-    header('Location: addAdmin.php?error=missing_fields');
+    header('Location: /ireserve/admin/addAdmin.php?error=missing_fields');
     exit();
 }
 
@@ -31,7 +32,7 @@ $confirm_password = $_POST['confirm_password'];
 $role = 'admin';
 
 // Handle profile picture upload
-$picture_url = null;
+$picture_url = '/ireserve/assets/images/admin.png'; // Default admin profile picture
 if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['profile_picture'];
     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -43,13 +44,13 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] ===
     finfo_close($finfo);
     
     if (!in_array($mimeType, $allowedTypes)) {
-        header('Location: addAdmin.php?error=invalid_file_type');
+        header('Location: /ireserve/admin/addAdmin.php?error=invalid_file_type');
         exit();
     }
     
     // Validate file size
     if ($file['size'] > $maxSize) {
-        header('Location: addAdmin.php?error=file_too_large');
+        header('Location: /ireserve/admin/addAdmin.php?error=file_too_large');
         exit();
     }
     
@@ -68,24 +69,24 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] ===
     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
         $picture_url = '/ireserve/assets/images/users/' . $filename;
     } else {
-        header('Location: addAdmin.php?error=upload_failed');
+        header('Location: /ireserve/admin/addAdmin.php?error=upload_failed');
         exit();
     }
 }
 
 // Validate email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: addAdmin.php?error=invalid_email');
+    header('Location: /ireserve/admin/addAdmin.php?error=invalid_email');
     exit();
 }
 
 // Password strength and match
 if (strlen($password) < 6) {
-    header('Location: addAdmin.php?error=weak_password');
+    header('Location: /ireserve/admin/addAdmin.php?error=weak_password');
     exit();
 }
 if ($password !== $confirm_password) {
-    header('Location: addAdmin.php?error=weak_password'); // reuse with general message
+    header('Location: /ireserve/admin/addAdmin.php?error=weak_password'); // reuse with general message
     exit();
 }
 
@@ -93,7 +94,7 @@ if ($password !== $confirm_password) {
 $checkSql = 'SELECT id FROM users WHERE email = ? LIMIT 1';
 $checkStmt = $conn->prepare($checkSql);
 if (!$checkStmt) {
-    header('Location: addAdmin.php?error=prepare_failed');
+    header('Location: /ireserve/admin/addAdmin.php?error=prepare_failed');
     exit();
 }
 $checkStmt->bind_param('s', $email);
@@ -101,7 +102,7 @@ $checkStmt->execute();
 $checkRes = $checkStmt->get_result();
 if ($checkRes && $checkRes->num_rows > 0) {
     $checkStmt->close();
-    header('Location: addAdmin.php?error=email_exists');
+    header('Location: /ireserve/admin/addAdmin.php?error=email_exists');
     exit();
 }
 $checkStmt->close();
@@ -111,17 +112,17 @@ $password_hash = password_hash($password, PASSWORD_DEFAULT);
 $sql = 'INSERT INTO users (name, email, phone_number, matrics_number, course, faculty, picture_url, password, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
-    header('Location: addAdmin.php?error=prepare_failed');
+    header('Location: /ireserve/admin/addAdmin.php?error=prepare_failed');
     exit();
 }
 $stmt->bind_param('sssssssss', $name, $email, $phone_number, $matrics_number, $course, $faculty, $picture_url, $password_hash, $role);
 if ($stmt->execute()) {
     $stmt->close();
     $conn->close();
-    header('Location: userList.php?success=admin_added');
+    header('Location: /ireserve/admin/userList.php?success=admin_added');
     exit();
 }
 $stmt->close();
 $conn->close();
-header('Location: addAdmin.php?error=database_error');
+header('Location: /ireserve/admin/addAdmin.php?error=database_error');
 exit();

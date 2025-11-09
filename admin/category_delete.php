@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Require admin session

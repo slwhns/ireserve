@@ -1,0 +1,354 @@
+/* User Page Specific Styles */
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.3rem;
+}
+
+.dark-mode-toggle:hover {
+    background: var(--extra-light);
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* Profile Dropdown */
+.user-profile-menu {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.profile-pic-default {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), rgba(42, 33, 133, 0.9));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.profile-pic-default i {
+  font-size: 24px;
+  color: var(--white);
+}
+
+.profile-pic:hover,
+.profile-pic-default:hover {
+  border-color: var(--primary-color-dark);
+  transform: scale(1.05);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  border: 1px solid var(--border-color);
+}
+
+.dropdown-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-pic-dropdown-default {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), rgba(42, 33, 133, 0.9));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-pic-dropdown-default i {
+  font-size: 30px;
+  color: var(--white);
+}
+
+.dropdown-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.dropdown-header p {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.dropdown-item:hover {
+  background: var(--extra-light);
+}
+
+.dropdown-item i {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.dropdown-divider {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.logout-item {
+  color: #EF4444;
+}
+
+body.dark-mode .logout-item {
+  color: #F87171;
+}
+
+.logout-item:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Search Dropdown */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  margin-top: 4px;
+}
+
+body.dark-mode .search-dropdown {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.search-dropdown.active {
+  display: block;
+}
+
+.search-item {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dark);
+}
+
+.search-item:hover {
+  background: var(--extra-light);
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.search-item-info h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.search-item-info p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Alert Messages */
+.alert {
+  padding: 12px 20px;
+  margin: 20px auto;
+  border-radius: 8px;
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Book Item Buttons */
+.btn-book-item {
+  width: 100%;
+  padding: 10px 16px;
+  margin-top: 10px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.btn-book-item:hover {
+  background: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.btn-unavailable {
+  width: 100%;
+  padding: 10px 16px;
+  margin-top: 10px;
+  background: #ccc;
+  color: #666;
+  border: none;
+  border-radius: 6px;
+  cursor: not-allowed;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Popular Items Section */
+.popular_content h3 {
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.popular_content h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.popular_content p {
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+
+.popular_card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.no-items {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-light);
+}
+
+/* Booking Form Enhancements */
+.booking_container input:not(:placeholder-shown) ~ label,
+.booking_container input:focus ~ label {
+  font-size: 0.8rem;
+  top: 0;
+}
+
+.booking_container input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.booking_container input[type="number"]::-webkit-outer-spin-button,
+.booking_container input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Flatpickr Calendar */
+.flatpickr-calendar {
+  font-family: "Poppins", sans-serif;
+}

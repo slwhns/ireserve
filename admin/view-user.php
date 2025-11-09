@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Check if user is logged in and is admin
@@ -45,18 +46,23 @@ if ($stmt) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View User | iReserve</title>
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
     <link rel="stylesheet" href="/ireserve/assets/css/inventory_form.css">
     <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
+    <!-- ============ Navigation Bar ============ -->
     <div class="container">
+        <!-- ============ Sidebar ============ -->
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
+        <!-- ============ Main Content ============ -->
         <div class="main">
+            <!-- ============ Top Bar ============ -->
             <?php include __DIR__ . '/includes/topbar.php'; ?>
 
+            <!-- ====================== Form Content ====================== -->
             <div class="form-container">
                 <div class="form-card">
                     <div class="form-header">

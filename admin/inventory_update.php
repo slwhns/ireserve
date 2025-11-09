@@ -1,4 +1,5 @@
 <?php
+session_name('ireserve_admin');
 session_start();
 
 // Check if user is logged in and is admin
@@ -32,6 +33,8 @@ $description = trim($_POST['description']);
 $quantity = (int)$_POST['quantity'];
 $status = trim($_POST['status']);
 $location = trim($_POST['location']);
+$latitude = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
+$longitude = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
 $current_image = $_POST['current_image'];
 $image_url = $current_image; // Keep current image by default
 
@@ -96,7 +99,9 @@ $sql = "UPDATE inventory_items
             description = ?, 
             quantity = ?, 
             status = ?, 
-            location = ?, 
+            location = ?,
+            latitude = ?,
+            longitude = ?,
             image_url = ?,
             updated_at = CURRENT_TIMESTAMP 
         WHERE item_id = ?";
@@ -105,14 +110,16 @@ $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sississsi", 
+        "sisissiddsi", 
         $name, 
         $category_id, 
         $sku, 
         $description, 
         $quantity, 
         $status, 
-        $location, 
+        $location,
+        $latitude,
+        $longitude,
         $image_url,
         $item_id
     );

@@ -1,20 +1,39 @@
 <?php
-
-session_start();
 require_once 'config.php';
 
 if (isset($_POST['register'])) {
     $name = $_POST['name'];
+    $matrics_number = $_POST['matrics_number'];
+    $phone_number = $_POST['phone_number'];
+    $course = $_POST['course'];
+    $faculty = $_POST['faculty'];
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = 'user'; // Only allow user registration
 
-    $checkEmail = $conn->query("SELECT email FROM users WHERE email ='$email'");
-    if ($checkEmail->num_rows > 0) {
+    // Check if email already exists
+    $checkEmail = $conn->prepare("SELECT email FROM users WHERE email = ?");
+    $checkEmail->bind_param('s', $email);
+    $checkEmail->execute();
+    $result = $checkEmail->get_result();
+    
+    if ($result->num_rows > 0) {
+        // Start default session for error messages
+        session_start();
         $_SESSION['register_error'] = "Email already registered.";
         $_SESSION['active_form'] = 'register';
+        $checkEmail->close();
     } else {
-        $conn->query("INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')");
+        $checkEmail->close();
+        
+        // Set default profile picture
+        $default_picture = '/ireserve/assets/images/user.png';
+        
+        // Insert new user using prepared statement
+        $stmt = $conn->prepare("INSERT INTO users (name, matrics_number, phone_number, course, faculty, email, password, role, picture_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('sssssssss', $name, $matrics_number, $phone_number, $course, $faculty, $email, $password, $role, $default_picture);
+        $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: index.php");
@@ -29,14 +48,23 @@ if (isset($_POST['login'])) {
     if ($result->num_rows >0) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['email'] = $user['email'];
-
+            
             if ($user['role'] === 'admin') {
+                // Use separate session for admin
+                session_name('ireserve_admin');
+                session_start();
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = 'admin';
                 header("Location: admin/admin_page.php");
             } else {
+                // Use separate session for user
+                session_name('ireserve_user');
+                session_start();
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = 'user';
                 header("Location: user/user_page.php");
             }
@@ -44,10 +72,15 @@ if (isset($_POST['login'])) {
         } 
     } 
 
+    // Start default session for error messages
+    session_start();
     $_SESSION['login_error'] = "Invalid email or password.";
     $_SESSION['active_form'] = 'login';
     header("Location: index.php");
     exit();
 }
 
+// If accessed directly without POST, redirect to index
+header("Location: index.php");
+exit();
 ?>
