@@ -110,7 +110,7 @@ $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sisissiddsi", 
+        "sississddsi", 
         $name, 
         $category_id, 
         $sku, 

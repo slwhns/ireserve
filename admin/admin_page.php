@@ -220,10 +220,8 @@ if ($stmt) {
                     </div>
                 </div>
 
-            </div>
-        </div>
-
     <script src="/ireserve/assets/js/admin.js?v=8"></script>
+    
     </body>
 
 </html>

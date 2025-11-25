@@ -43,8 +43,53 @@ body{font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;margin:0;color:#111;b
 .faq-list summary{cursor:pointer;font-weight:600;color:var(--blue)}
 .faq-list p{margin:8px 0 0;color:var(--muted)}
 
-.site-footer{padding:26px 0;background:transparent;border-top:1px solid rgba(0,0,0,0.04); background-color: #f7f8fb;}
-.site-footer .container{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+/* Footer Styles */
+.footer-container {
+    background: #f7f8fb;
+    padding: 20px 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer-container > div {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.footer-logo {
+    height: 60px;
+    background: #f7f8fb !important;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.footer-right {
+    text-align: right;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.footer-right > div:first-child {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 4px;
+}
+
+.footer-right .muted {
+    color: var(--muted);
+    font-size: 14px;
+}
 
 /* Responsive */
 @media (max-width: 900px){
@@ -57,4 +102,7 @@ body{font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;margin:0;color:#111;b
   .brand img{height:34px}
   .steps{grid-template-columns:1fr}
   .hero h1{font-size:24px}
+  .footer-container > div{flex-direction:column;text-align:center}
+  .footer-right{text-align:center}
+  .footer-logo{height:50px}
 }

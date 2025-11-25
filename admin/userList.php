@@ -119,8 +119,8 @@ if ($stmtU) {
                     
                     <div class="adminList">
                         <div class="cardHeader">
-                            <h2>Admin List</h2>
-                            <a href="/ireserve/admin/addAdmin.php" class="btn">Add Admin</a>
+                            <h2>Owner List</h2>
+                            <a href="/ireserve/admin/addAdmin.php" class="btn">Add Owner</a>
                         </div>
 
                         <table>
@@ -155,7 +155,7 @@ if ($stmtU) {
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="6" class="empty">No admins found.</td></tr>
+                                    <tr><td colspan="6" class="empty">No owner found.</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>

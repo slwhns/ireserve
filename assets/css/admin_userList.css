@@ -3,9 +3,9 @@
     width: 100%;
     margin-top: 20px;
     padding: 25px;
-    display: grid;
-    grid-template-columns: 2fr 2fr;
-    grid-gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 
 .details .adminList,
@@ -78,11 +78,33 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    table-layout: fixed;
 }
 
 .details table thead td {
     font-weight: 600;
 }
+
+/* Column widths for better layout */
+.details table td:nth-child(1) { width: 30px; } /* NO. */
+.details table td:nth-child(2) { 
+    width: 50%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    padding-left: 30px;
+} /* NAME - add padding from NO. */
+.details table td:nth-child(3) { 
+    width: 45%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+} /* EMAIL - more space */
+.details table td:nth-child(4) { 
+    width: 120px; 
+    text-align: center;
+    white-space: nowrap;
+} /* ACTION */
 
 .details .adminList table tr,
 .details .userList table tr {
@@ -106,10 +128,15 @@
     padding: 10px;
 }
 
+.details table tbody td.action {
+    white-space: nowrap;
+}
+
 .details table tbody .action .icon-btn {
     cursor: pointer;
     padding: 5px;
     gap: 10px;
+    display: inline-block;
 }
 
 .icon-btn {
@@ -422,6 +449,16 @@
     gap: 10px;
 }
 
+/* Make name auto-wrap */
+.user-cell span {
+    flex: 1;
+    min-width: 0;                  /* 🔥 VERY IMPORTANT */
+    white-space: normal;           /* allow wrapping */
+    overflow-wrap: anywhere;       /* best for long names */
+    word-break: break-word;        /* fallback */
+    line-height: 1.4;
+}
+
 .user-cell .avatar {
     width: 36px;
     height: 36px;
@@ -429,4 +466,5 @@
     object-fit: cover;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: #f2f2f2;
+    flex-shrink: 0;
 }

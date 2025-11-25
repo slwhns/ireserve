@@ -1,6 +1,7 @@
 <!-- Navigation Header -->
 <nav>
     <div class="nav_logo">
+        <img src="/ireserve/assets/images/UPSI logo.png" alt="UPSI" style="height: 60px; background: white; border-radius: 8px; padding: 4px; margin-right: 10px;" onerror="this.style.display='none'">
         <img src="/ireserve/assets/images/logo.png" alt="iReserve Logo" style="height: 40px; vertical-align: middle; margin-right: 8px;">
         iReserve
     </div>
@@ -10,9 +11,6 @@
         <li class="link"><a href="/ireserve/user/bookingForm.php">Book Now</a></li>
         <li class="link"><a href="/ireserve/user/about.php">About Us</a></li>
         <li class="link">
-            <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle Dark Mode">
-                <i class="ri-moon-line"></i>
-            </button>
         </li>
         <li class="link user-profile-menu">
             <div class="profile-dropdown">

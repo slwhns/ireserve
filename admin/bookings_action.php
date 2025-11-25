@@ -70,6 +70,51 @@ if ($action === 'taken') {
 }
 
 if ($ok && $affected > 0) {
+  // Try to send email notification, but don't fail if email fails
+  try {
+    // Load email helper only when needed
+    if (file_exists(__DIR__ . '/../includes/email_helper.php')) {
+      require_once __DIR__ . '/../includes/email_helper.php';
+      
+      // Fetch booking and user details for email notification
+      $emailSql = "SELECT b.ref_code, b.start_at, b.end_at, b.admin_note,
+                          u.email, u.name as user_name,
+                          i.name as item_name
+                   FROM bookings b
+                   JOIN users u ON b.user_id = u.id
+                   LEFT JOIN inventory_items i ON b.item_id = i.item_id
+                   WHERE b.ref_code = ?";
+      
+      if ($emailStmt = $conn->prepare($emailSql)) {
+        $emailStmt->bind_param('s', $ref);
+        $emailStmt->execute();
+        $emailResult = $emailStmt->get_result();
+        
+        if ($emailData = $emailResult->fetch_assoc()) {
+          // Send email notification
+          $bookingData = [
+            'ref_code' => $emailData['ref_code'],
+            'item_name' => $emailData['item_name'],
+            'start_at' => date('F j, Y', strtotime($emailData['start_at'])),
+            'end_at' => date('F j, Y', strtotime($emailData['end_at'])),
+            'admin_note' => $emailData['admin_note']
+          ];
+          
+          sendBookingNotification(
+            $emailData['email'],
+            $emailData['user_name'],
+            $action,
+            $bookingData
+          );
+        }
+        $emailStmt->close();
+      }
+    }
+  } catch (Exception $e) {
+    // Log error but continue - don't fail the booking update
+    error_log("Email notification failed: " . $e->getMessage());
+  }
+  
   echo json_encode(['ok'=>true, 'message'=>'Updated']);
 } else if ($ok && $affected === 0) {
   echo json_encode(['ok'=>false, 'message'=>'Booking not found']);

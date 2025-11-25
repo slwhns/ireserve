@@ -240,6 +240,6 @@ require_once 'includes/sidebar.php';
         document.getElementById('longitude').value = location.lng().toFixed(6);
     }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEWZ4A9Tzq8j7Ud6r4tHhoHSLMqJbPonY&callback=initMap"></script>
 
 <?php require_once 'includes/footer.php'; ?>
