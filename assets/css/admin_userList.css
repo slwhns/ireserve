@@ -8,11 +8,18 @@
     gap: 30px;
 }
 
-.details .adminList,
+.details .adminList {
+    position: relative;
+    display: block;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+}
+
 .details .userList {
     position: relative;
-    display: grid;
-    max-height: 300px;
+    display: block;
     background: var(--white);
     padding: 30px;
     border-radius: 20px;
@@ -85,26 +92,26 @@
     font-weight: 600;
 }
 
-/* Column widths for better layout */
-.details table td:nth-child(1) { width: 30px; } /* NO. */
-.details table td:nth-child(2) { 
-    width: 50%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    padding-left: 30px;
-} /* NAME - add padding from NO. */
-.details table td:nth-child(3) { 
-    width: 45%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-} /* EMAIL - more space */
-.details table td:nth-child(4) { 
-    width: 120px; 
+/* Column widths */
+.details table td:nth-child(1) {
+    width: 60px;                /* NO. */
+    text-align: left;
+}
+
+.details table td:nth-child(2) {
+    padding-left: 10px;         /* NAME */
+    width: 40%;
+}
+
+.details table td:nth-child(3) {
+    width: 40%;                  /* EMAIL: just as wide as needed */
+}
+
+.details table td:nth-child(4) {
+    width: 120px;               /* ACTION */
     text-align: center;
     white-space: nowrap;
-} /* ACTION */
+}
 
 .details .adminList table tr,
 .details .userList table tr {
@@ -167,7 +174,7 @@
     .details .userList {
         padding: 18px;
         max-height: none;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .details .adminList .cardHeader,
@@ -452,11 +459,12 @@
 /* Make name auto-wrap */
 .user-cell span {
     flex: 1;
-    min-width: 0;                  /* 🔥 VERY IMPORTANT */
-    white-space: normal;           /* allow wrapping */
-    overflow-wrap: anywhere;       /* best for long names */
-    word-break: break-word;        /* fallback */
+    min-width: 300px;    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     line-height: 1.4;
+    display: block;
 }
 
 .user-cell .avatar {

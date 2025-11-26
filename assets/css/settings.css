@@ -341,13 +341,20 @@
     justify-content: center;
 }
 
+.modal.show {
+    display: flex;
+}
+
 .modal-content {
     background: var(--white);
     border-radius: 20px;
     width: 90%;
-    max-width: 500px;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     animation: modalSlideIn 0.3s ease;
+    padding: 30px;
 }
 
 @keyframes modalSlideIn {
@@ -401,6 +408,52 @@
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
+}
+
+/* Notification Styles */
+.notification-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.notification-icon.success {
+    color: #28a745;
+}
+
+.notification-icon.error {
+    color: #dc3545;
+}
+
+.notification-icon.info {
+    color: var(--primary-color);
+}
+
+#notificationMessage {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 25px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.btn-ok {
+    padding: 12px 40px;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-ok:hover {
+    background: var(--primary-color-dark);
+    transform: translateY(-2px);
 }
 
 /* Responsive Design */
@@ -721,3 +774,151 @@
     transform: translateY(-2px);
 }
 
+/* Telegram Help Styles */
+.form-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-weight: normal;
+}
+
+.telegram-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+
+.telegram-modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.telegram-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.telegram-close:hover,
+.telegram-close:focus {
+    color: #000;
+}
+
+.telegram-modal-content h3 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.telegram-steps {
+    margin: 20px 0;
+}
+
+.telegram-step {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+.step-number {
+    background: var(--primary-color);
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.step-content p {
+    margin: 0;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.step-content code {
+    background: #f4f4f4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--primary-color);
+}
+
+.telegram-note {
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .telegram-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .telegram-modal-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+}

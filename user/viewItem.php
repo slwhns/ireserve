@@ -58,10 +58,12 @@ if ($result->num_rows == 0) {
 
 $item = $result->fetch_assoc();
 $available = max(0, (int)$item['quantity'] - (int)$item['qty_taken']);
+$status = strtolower($item['status'] ?? 'active');
+$isAvailable = ($status == 'active' || $status == 'available') && $available > 0;
 $stmt->close();
 
 // DEBUG
-echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_taken'] . ", available=" . $available . " -->";
+echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_taken'] . ", available=" . $available . ", status=" . $status . ", isAvailable=" . ($isAvailable ? 'true' : 'false') . " -->";
 ?>
 
 <!DOCTYPE html>
@@ -253,7 +255,8 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
             margin-bottom: 15px;
         }
 
-        .status-badge.active {
+        .status-badge.active,
+        .status-badge.available {
             background: #d4edda;
             color: #155724;
         }
@@ -290,11 +293,23 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
                 <img src="<?php echo htmlspecialchars(!empty($item['image_url']) ? $item['image_url'] : '/ireserve/assets/images/no-image.png'); ?>" 
                      alt="<?php echo htmlspecialchars($item['name']); ?>" 
                      class="item-main-image">
+                
+                <?php if (!empty($item['latitude']) && !empty($item['longitude'])): ?>
+                <div class="item-location-map" style="margin-top: 20px;">
+                    <h3><i class="ri-map-pin-line"></i> Item Location</h3>
+                    <div id="map" style="width: 100%; height: 400px; border-radius: 8px; margin-top: 15px;"></div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <div class="item-info-section">
-                <span class="status-badge <?php echo htmlspecialchars($item['status']); ?>">
-                    <?php echo ucfirst($item['status']); ?>
+                <span class="status-badge <?php echo htmlspecialchars($status); ?>">
+                    <?php 
+                    if ($status == 'maintenance') echo 'Under Maintenance';
+                    elseif ($status == 'retired') echo 'Retired';
+                    elseif ($status == 'active' || $status == 'available') echo 'Available';
+                    else echo ucfirst($status);
+                    ?>
                 </span>
                 <h1><?php echo htmlspecialchars($item['name']); ?></h1>
 
@@ -322,8 +337,14 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
                     </div>
                     <div class="availability-stats">
                         <div class="stat-box">
-                            <div class="stat-value" style="color: <?php echo $available > 0 ? '#28a745' : '#dc3545'; ?>">
-                                <?php echo $available; ?>
+                            <div class="stat-value" style="color: <?php echo ($status == 'active' || $status == 'available') && $available > 0 ? '#28a745' : '#dc3545'; ?>">
+                                <?php 
+                                if ($status == 'active' || $status == 'available') {
+                                    echo $available;
+                                } else {
+                                    echo '0';
+                                }
+                                ?>
                             </div>
                             <div class="stat-label">Available</div>
                         </div>
@@ -341,28 +362,23 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
                 </div>
                 <?php endif; ?>
 
-                <?php if (!empty($item['latitude']) && !empty($item['longitude'])): ?>
-                <div class="item-location-map">
-                    <h3><i class="ri-map-pin-line"></i> Item Location</h3>
-                    <div id="map" style="width: 100%; height: 400px; border-radius: 8px; margin-top: 15px;"></div>
-                </div>
-                <?php endif; ?>
-
                 <div class="action-buttons">
                     <a href="/ireserve/user/allItems.php" class="btn-back">
                         <i class="ri-arrow-left-line"></i> Back
                     </a>
-                    <?php 
-                    // DEBUG: Check the condition
-                    echo "<!-- DEBUG AT BUTTON: available=" . $available . ", condition result=" . ($available > 0 ? 'TRUE-SHOULD-SHOW-BOOK' : 'FALSE-SHOWS-UNAVAILABLE') . " -->";
-                    if ($available > 0): 
-                    ?>
+                    <?php if ($isAvailable): ?>
                     <a href="/ireserve/user/bookingForm.php?item_id=<?php echo $item_id; ?>" class="btn-book-now">
                         <i class="ri-bookmark-line"></i> Book This Item
                     </a>
                     <?php else: ?>
                     <button class="btn-unavailable-full" disabled>
-                        <i class="ri-close-circle-line"></i> Not Available
+                        <i class="ri-close-circle-line"></i> 
+                        <?php 
+                        if ($status == 'maintenance') echo 'Under Maintenance';
+                        elseif ($status == 'retired') echo 'Retired';
+                        elseif ($available == 0) echo 'Fully Booked';
+                        else echo 'Not Available';
+                        ?>
                     </button>
                     <?php endif; ?>
                 </div>

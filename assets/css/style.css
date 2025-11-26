@@ -251,6 +251,38 @@ nav {
   overflow: hidden;
   border-radius: 1rem;
   box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Status Badge for Popular Items */
+.item-status-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.item-status-badge.maintenance {
+  background: rgba(255, 193, 7, 0.95);
+  color: #000;
+}
+
+.item-status-badge.retired {
+  background: rgba(220, 53, 69, 0.95);
+  color: #fff;
+}
+
+.item-status-badge.booked {
+  background: rgba(108, 117, 125, 0.95);
+  color: #fff;
 }
 
 .popular_content {

@@ -8,6 +8,7 @@
     <ul class="nav_links">
         <li class="link"><a href="/ireserve/user/user_page.php">Home</a></li>
         <li class="link"><a href="/ireserve/user/allItems.php">All Items</a></li>
+        <li class="link"><a href="/ireserve/user/location.php">Location</a></li>
         <li class="link"><a href="/ireserve/user/bookingForm.php">Book Now</a></li>
         <li class="link"><a href="/ireserve/user/about.php">About Us</a></li>
         <li class="link">

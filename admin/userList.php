@@ -61,7 +61,7 @@ if ($stmtU) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin & User List | iReserve</title>
         <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=8">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=9">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
@@ -155,7 +155,7 @@ if ($stmtU) {
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="6" class="empty">No owner found.</td></tr>
+                                    <tr><td colspan="4" class="empty">No owner found.</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -231,7 +231,7 @@ if ($stmtU) {
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="6" class="empty">No users found.</td></tr>
+                                    <tr><td colspan="4" class="empty">No users found.</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>

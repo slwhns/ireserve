@@ -259,6 +259,38 @@ body.dark-mode .notification-content {
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
+    z-index: 2;
+}
+
+/* Status Overlays */
+.status-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 3;
+    backdrop-filter: blur(4px);
+}
+
+.maintenance-overlay {
+    background: rgba(255, 193, 7, 0.95);
+    color: #000;
+}
+
+.retired-overlay {
+    background: rgba(220, 53, 69, 0.95);
+}
+
+.unavailable-overlay {
+    background: rgba(108, 117, 125, 0.95);
 }
 
 .item-content {

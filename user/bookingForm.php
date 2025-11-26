@@ -64,6 +64,31 @@ if ($preselected_item_id > 0) {
     <link rel="stylesheet" href="/ireserve/assets/css/bookingForm.css">
     <link rel="stylesheet" href="/ireserve/assets/css/allItems.css">
     <link rel="stylesheet" href="/ireserve/assets/css/settings.css">
+    <style>
+        /* Custom flatpickr styling for booked dates */
+        .flatpickr-day.flatpickr-disabled {
+            background: #ffebee !important;
+            color: #c62828 !important;
+            cursor: not-allowed !important;
+            position: relative;
+        }
+        
+        .flatpickr-day.flatpickr-disabled:after {
+            content: '✕';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .flatpickr-day.flatpickr-disabled:hover {
+            background: #ffcdd2 !important;
+            border-color: #c62828 !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -147,9 +172,9 @@ if ($preselected_item_id > 0) {
                     </div>
 
                     <div class="form-group">
-                        <label for="purpose"><i class="ri-file-text-line"></i> Purpose (Optional)</label>
-                        <input type="text" id="purpose" name="purpose" placeholder="e.g., Class project, Event, etc." />
-                        <small class="form-hint">Why do you need this item?</small>
+                        <label for="purpose"><i class="ri-file-text-line"></i> Purpose *</label>
+                        <input type="text" id="purpose" name="purpose" placeholder="e.g., Class project, Event, etc." required />
+                        <small class="form-hint">Please specify why you need this item</small>
                     </div>
                 </div>
 
@@ -202,7 +227,18 @@ if ($preselected_item_id > 0) {
             }
 
             searchTimeout = setTimeout(() => {
-                fetch('/ireserve/user/search_items.php?q=' + encodeURIComponent(query))
+                // Get date values from form
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                // Build query string with dates
+                let queryString = 'q=' + encodeURIComponent(query);
+                if (startDate && endDate) {
+                    queryString += '&start_date=' + encodeURIComponent(startDate);
+                    queryString += '&end_date=' + encodeURIComponent(endDate);
+                }
+                
+                fetch('/ireserve/user/search_items.php?' + queryString)
                     .then(response => response.json())
                     .then(data => {
                         if (data.ok && data.results.length > 0) {
@@ -288,22 +324,153 @@ if ($preselected_item_id > 0) {
             }
         });
 
+        // Store flatpickr instances and booked dates
+        let startDatePicker = null;
+        let endDatePicker = null;
+        let bookedDates = [];
+        let itemTotalQuantity = 0;
+
+        // Function to get quantity booked on a specific date
+        function getQuantityBookedOnDate(dateStr) {
+            let totalBooked = 0;
+            
+            bookedDates.forEach(range => {
+                if (dateStr >= range.start && dateStr <= range.end) {
+                    totalBooked += range.quantity;
+                }
+            });
+            
+            return totalBooked;
+        }
+
+        // Function to check if a date is fully booked
+        function isDateFullyBooked(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            
+            const bookedQty = getQuantityBookedOnDate(dateStr);
+            console.log(`Checking date ${dateStr}: Booked ${bookedQty} / Total ${itemTotalQuantity}`);
+            
+            return bookedQty >= itemTotalQuantity;
+        }
+
+        // Function to load item availability
+        function loadItemAvailability(itemId) {
+            if (!itemId || itemId === '0') {
+                bookedDates = [];
+                itemTotalQuantity = 0;
+                if (startDatePicker) startDatePicker.set('disable', []);
+                if (endDatePicker) endDatePicker.set('disable', []);
+                return;
+            }
+
+            fetch('/ireserve/user/get_item_availability.php?item_id=' + itemId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        if (!data.can_book) {
+                            // Item is in maintenance or unavailable - disable all dates
+                            alert(data.message);
+                            document.getElementById('itemSearch').value = '';
+                            document.getElementById('itemId').value = '';
+                            return;
+                        }
+
+                        bookedDates = data.booked_ranges || [];
+                        itemTotalQuantity = data.item.total_quantity;
+
+                        console.log('Loaded availability:', {
+                            bookedDates: bookedDates,
+                            totalQuantity: itemTotalQuantity
+                        });
+
+                        // Update flatpickr to disable fully booked dates
+                        const disableFunction = function(date) {
+                            return isDateFullyBooked(date);
+                        };
+
+                        if (startDatePicker) {
+                            startDatePicker.set('disable', [disableFunction]);
+                            startDatePicker.redraw();
+                        }
+                        if (endDatePicker) {
+                            endDatePicker.set('disable', [disableFunction]);
+                            endDatePicker.redraw();
+                        }
+
+                        // Update available quantity hint
+                        updateAvailableQuantity();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading availability:', error);
+                });
+        }
+
+        // Function to update available quantity based on selected dates
+        function updateAvailableQuantity() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const quantityField = document.getElementById('quantity');
+            const availableQtyHint = document.getElementById('availableQty');
+
+            if (!startDate || !endDate || bookedDates.length === 0) {
+                if (itemTotalQuantity > 0) {
+                    availableQtyHint.textContent = 'Available: ' + itemTotalQuantity + ' units';
+                    quantityField.max = itemTotalQuantity;
+                }
+                return;
+            }
+
+            // Calculate maximum booked quantity during the selected period
+            let maxBooked = 0;
+            bookedDates.forEach(range => {
+                // Check if ranges overlap
+                if (startDate <= range.end && endDate >= range.start) {
+                    maxBooked = Math.max(maxBooked, range.quantity);
+                }
+            });
+
+            const available = itemTotalQuantity - maxBooked;
+            availableQtyHint.textContent = 'Available for selected dates: ' + available + ' units';
+            quantityField.max = available;
+
+            if (quantityField.value > available) {
+                quantityField.value = available;
+            }
+        }
+
         // Initialize Flatpickr for date inputs
-        flatpickr("#startDate", {
+        startDatePicker = flatpickr("#startDate", {
             dateFormat: "Y-m-d",
             minDate: "today",
             onChange: function(selectedDates, dateStr, instance) {
-                const endDatePicker = document.querySelector('#endDate')._flatpickr;
                 if (endDatePicker) {
                     endDatePicker.set('minDate', dateStr);
                 }
+                updateAvailableQuantity();
             }
         });
 
-        flatpickr("#endDate", {
+        endDatePicker = flatpickr("#endDate", {
             dateFormat: "Y-m-d",
-            minDate: "today"
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                updateAvailableQuantity();
+            }
         });
+
+        // Watch for item selection changes
+        document.getElementById('itemId').addEventListener('change', function() {
+            loadItemAvailability(this.value);
+        });
+
+        // Load availability if item is preselected
+        if (document.getElementById('itemId').value) {
+            loadItemAvailability(document.getElementById('itemId').value);
+        }
     });
     </script>
 </body>

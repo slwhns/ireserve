@@ -75,33 +75,46 @@ if ($booking_status !== 'pending') {
     exit();
 }
 
-// Check item availability if quantity changed
-if ($quantity !== $original_qty) {
-    $qty_diff = $quantity - $original_qty;
-    
-    // Check if there's enough available quantity
-    $check_qty_sql = "SELECT i.quantity, 
-                      COALESCE((SELECT SUM(qty) FROM bookings WHERE item_id = ? AND status = 'taken'), 0) AS qty_taken
-                      FROM inventory_items i WHERE i.item_id = ?";
-    $stmt = $conn->prepare($check_qty_sql);
-    $stmt->bind_param('ii', $item_id, $item_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows === 0) {
-        header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=item_not_found");
-        exit();
-    }
-    
-    $item_data = $result->fetch_assoc();
-    $available_qty = max(0, (int)$item_data['quantity'] - (int)$item_data['qty_taken']);
-    $stmt->close();
-    
-    // If increasing quantity, check if enough available
-    if ($qty_diff > 0 && $available_qty < $qty_diff) {
-        header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=insufficient_quantity");
-        exit();
-    }
+// Check item availability for the new date range
+// Exclude the current booking from the check
+$check_qty_sql = "SELECT i.quantity,
+                  COALESCE((
+                      SELECT SUM(b.qty)
+                      FROM bookings b
+                      WHERE b.item_id = ?
+                      AND b.status IN ('approved', 'taken')
+                      AND b.ref_code != ?
+                      AND DATE(b.start_at) <= ?
+                      AND DATE(b.end_at) >= ?
+                  ), 0) AS qty_booked
+                  FROM inventory_items i WHERE i.item_id = ?";
+$stmt = $conn->prepare($check_qty_sql);
+$stmt->bind_param('isssi', $item_id, $ref_code, $end_at, $start_at, $item_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=item_not_found");
+    exit();
+}
+
+$item_data = $result->fetch_assoc();
+$qty_booked = (int)$item_data['qty_booked'];
+$available_qty = (int)$item_data['quantity'] - $qty_booked;
+$stmt->close();
+
+// Debug logging
+error_log("Edit Booking Check - Item ID: $item_id, Dates: $start_at to $end_at, Qty Booked: $qty_booked, Available: $available_qty");
+
+// Check if enough quantity is available for the requested dates
+if ($available_qty <= 0) {
+    header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=dates_fully_booked&start=" . urlencode($start_at) . "&end=" . urlencode($end_at));
+    exit();
+}
+
+if ($quantity > $available_qty) {
+    header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=insufficient_quantity_for_dates&available=" . $available_qty . "&requested=" . $quantity);
+    exit();
 }
 
 // Start transaction

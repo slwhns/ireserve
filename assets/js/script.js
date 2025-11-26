@@ -71,7 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
         'end_before_start': 'End date must be after start date.',
         'item_unavailable': 'This item is currently unavailable.',
         'item_not_bookable': 'This item cannot be booked at this time (Status: ' + (urlParams.get('status') || 'unavailable') + ').',
+        'dates_fully_booked': 'Sorry, this item is fully booked for the selected dates (' + (urlParams.get('start') || '') + ' to ' + (urlParams.get('end') || '') + '). Please choose different dates.',
         'insufficient_quantity': 'Not enough quantity available.',
+        'insufficient_quantity_for_dates': 'Not enough quantity available for the selected dates. Only ' + (urlParams.get('available') || '0') + ' available, but you requested ' + (urlParams.get('requested') || '0') + '. Please reduce quantity or choose different dates.',
         'booking_failed': 'Failed to submit booking. Please try again.',
         'booking_not_found': 'Booking not found or access denied.',
         'cannot_edit_approved_booking': 'You cannot edit a booking that has already been approved.',
@@ -141,7 +143,7 @@ function showNotification(message, type = 'info') {
 
     icon.innerHTML = icons[type] || icons['info'];
     icon.className = 'notification-icon ' + type;
-    messageEl.textContent = message;
+    messageEl.innerHTML = message;
     
     modal.classList.add('show');
 }

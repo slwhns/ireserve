@@ -38,8 +38,8 @@ $offset = ($page - 1) * $items_per_page;
 $category_filter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// Build the WHERE clause - show all items (no status filter)
-$where_conditions = ["1=1"];  // Always true, shows all items
+// Build the WHERE clause - show all items with their status
+$where_conditions = ["1=1"];  // Show all items
 $params = [];
 $types = '';
 
@@ -76,7 +76,7 @@ if (!empty($params)) {
 $total_pages = ceil($total_items / $items_per_page);
 
 // Fetch items
-$sql = "SELECT i.item_id, i.name, i.sku, i.location, i.image_url, i.quantity, 
+$sql = "SELECT i.item_id, i.name, i.sku, i.location, i.image_url, i.quantity, i.status,
                COALESCE(c.name, 'Uncategorized') AS category_name,
                COALESCE((
                    SELECT SUM(b.qty)
@@ -182,11 +182,26 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                 while ($row = $result->fetch_assoc()) {
                     $available = max(0, (int)$row['quantity'] - (int)$row['qty_taken']);
                     $imagePath = !empty($row['image_url']) ? $row['image_url'] : '/ireserve/assets/images/no-image.png';
+                    $status = strtolower($row['status'] ?? 'active');
+                    $isAvailable = ($status == 'active' || $status == 'available') && $available > 0;
             ?>
             <div class="item-card">
                 <div class="item-image">
                     <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                     <div class="item-badge"><?php echo htmlspecialchars($row['category_name']); ?></div>
+                    <?php if ($status == 'maintenance'): ?>
+                    <div class="status-overlay maintenance-overlay">
+                        <i class="ri-tools-line"></i> Maintenance
+                    </div>
+                    <?php elseif ($status == 'retired'): ?>
+                    <div class="status-overlay retired-overlay">
+                        <i class="ri-forbid-line"></i> Retired
+                    </div>
+                    <?php elseif (!$isAvailable && $available == 0): ?>
+                    <div class="status-overlay unavailable-overlay">
+                        <i class="ri-close-circle-line"></i> Fully Booked
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <div class="item-content">
                     <h3><?php echo htmlspecialchars($row['name']); ?></h3>
@@ -194,8 +209,14 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                     <p class="item-location"><i class="ri-map-pin-line"></i> <?php echo htmlspecialchars($row['location'] ?? 'Location not specified'); ?></p>
                     <div class="item-quantity">
                         <span class="qty-label">Available:</span>
-                        <span class="qty-value <?php echo $available > 0 ? 'in-stock' : 'out-of-stock'; ?>">
-                            <?php echo $available; ?> / <?php echo (int)$row['quantity']; ?>
+                        <span class="qty-value <?php echo ($status == 'active' || $status == 'available') && $available > 0 ? 'in-stock' : 'out-of-stock'; ?>">
+                            <?php 
+                            if ($status == 'active' || $status == 'available') {
+                                echo $available . ' / ' . (int)$row['quantity'];
+                            } else {
+                                echo '0 / ' . (int)$row['quantity'];
+                            }
+                            ?>
                         </span>
                     </div>
                     <div class="item-actions">
@@ -203,14 +224,19 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                            class="btn-view-item">
                             <i class="ri-eye-line"></i> View
                         </a>
-                        <?php if ($available > 0) { ?>
+                        <?php if ($isAvailable) { ?>
                         <a href="/ireserve/user/bookingForm.php?item_id=<?php echo (int)$row['item_id']; ?>" 
                            class="btn-book-item">
                             <i class="ri-bookmark-line"></i> Book
                         </a>
                         <?php } else { ?>
                         <button class="btn-unavailable" disabled>
-                            <i class="ri-close-circle-line"></i> Not Available
+                            <i class="ri-close-circle-line"></i> 
+                            <?php 
+                            if ($status == 'maintenance') echo 'Maintenance';
+                            elseif ($status == 'retired') echo 'Retired';
+                            else echo 'Not Available';
+                            ?>
                         </button>
                         <?php } ?>
                     </div>

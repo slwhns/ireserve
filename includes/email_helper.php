@@ -111,8 +111,8 @@ function getEmailSubject($status) {
 function getEmailBody($userName, $status, $bookingData) {
     $refCode = $bookingData['ref_code'] ?? 'N/A';
     $itemName = $bookingData['item_name'] ?? 'N/A';
-    $startDate = $bookingData['start_at'] ?? 'N/A';
-    $endDate = $bookingData['end_at'] ?? 'N/A';
+    $startDate = $bookingData['start_date'] ?? 'N/A';
+    $endDate = $bookingData['end_date'] ?? 'N/A';
     $adminNote = $bookingData['admin_note'] ?? '';
     
     // Status-specific content

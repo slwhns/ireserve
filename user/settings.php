@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 $user_email = $_SESSION['email'];
 
 // Fetch user details
-$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, course, faculty, picture_url FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, course, faculty, picture_url, telegram_chat_id FROM users WHERE id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -25,6 +25,7 @@ $user_matrics = $user['matrics_number'] ?? '';
 $user_phone = $user['phone_number'] ?? '';
 $user_course = $user['course'] ?? '';
 $user_faculty = $user['faculty'] ?? '';
+$user_telegram = $user['telegram_chat_id'] ?? '';
 $user_picture = !empty($user['picture_url']) ? $user['picture_url'] : '/ireserve/assets/images/user.png';
 
 // Handle form submissions
@@ -137,8 +138,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($check_result->num_rows > 0) {
                 $error_message = "Email is already taken by another user.";
             } else {
-                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, course = ?, faculty = ?, email = ? WHERE id = ?");
-                $update_stmt->bind_param('ssssssi', $name, $matrics_number, $phone_number, $course, $faculty, $email, $user_id);
+                // Get Telegram Chat ID from POST
+                $telegram_chat_id = trim($_POST['telegram_chat_id'] ?? '');
+                
+                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, course = ?, faculty = ?, email = ?, telegram_chat_id = ? WHERE id = ?");
+                $update_stmt->bind_param('sssssssi', $name, $matrics_number, $phone_number, $course, $faculty, $email, $telegram_chat_id, $user_id);
                 
                 if ($update_stmt->execute()) {
                     $_SESSION['name'] = $name;
@@ -203,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/ireserve/assets/css/style.css">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
-    <link rel="stylesheet" href="/ireserve/assets/css/settings.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=2">
 </head>
 <body>
     <?php include __DIR__ . '/includes/header.php'; ?>
@@ -280,6 +284,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="phone_number">Phone Number</label>
                         <input type="tel" id="phone_number" name="phone_number" value="<?php echo htmlspecialchars($user_phone); ?>">
                     </div>
+                    <div class="form-group">
+                        <label for="telegram_chat_id">
+                            <i class="ri-telegram-line"></i> Telegram Chat ID 
+                            <span class="help-text">(Optional - for booking notifications)</span>
+                        </label>
+                        <input type="text" id="telegram_chat_id" name="telegram_chat_id" 
+                               value="<?php echo htmlspecialchars($user_telegram); ?>" 
+                               placeholder="e.g., 123456789">
+                        <small class="form-help">
+                            <a href="#" onclick="showTelegramHelp(); return false;" style="color: var(--primary-color);">
+                                <i class="ri-question-line"></i> How to get my Chat ID?
+                            </a>
+                        </small>
+                    </div>
                     <button type="submit" name="update_profile" class="btn btn-primary">
                         <i class="ri-save-line"></i> Save Changes
                     </button>
@@ -353,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include __DIR__ . '/includes/footer.php'; ?>
 
-    <script src="/ireserve/assets/js/script.js"></script>
+    <script src="/ireserve/assets/js/script.js?v=2"></script>
     <script>
         // Profile picture preview
         document.getElementById('profile_picture').addEventListener('change', function(e) {
@@ -366,6 +384,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 reader.readAsDataURL(file);
             }
         });
+
+        // Telegram Help - Show as popup notification
+        function showTelegramHelp() {
+            const helpContent = `
+                <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+                    <h3 style="margin: 0 0 20px 0; color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
+                        <i class="ri-telegram-fill"></i> How to Get Your Telegram Chat ID
+                    </h3>
+                    
+                    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
+                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Open Telegram</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Open your Telegram app on your phone or computer</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
+                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Search for @userinfobot</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">In the search bar, type <code style="background: #f4f4f4; padding: 2px 8px; border-radius: 4px; font-family: monospace; color: var(--primary-color);">@userinfobot</code> and open the bot</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
+                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Start the bot</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Click "START" or send any message to the bot</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-start;">
+                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">4</div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Copy your Chat ID</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">The bot will reply with your Chat ID (a number like 123456789). Copy this number and paste it in the field above.</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; color: #1976d2; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
+                        <i class="ri-information-line"></i>
+                        <span>You'll receive notifications about your booking status via Telegram once configured!</span>
+                    </div>
+                </div>
+            `;
+            
+            showNotification(helpContent, 'info');
+        }
     </script>
 </body>
 </html>

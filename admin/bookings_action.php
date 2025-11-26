@@ -70,49 +70,69 @@ if ($action === 'taken') {
 }
 
 if ($ok && $affected > 0) {
-  // Try to send email notification, but don't fail if email fails
+  // Try to send email and Telegram notifications, but don't fail if they fail
   try {
-    // Load email helper only when needed
-    if (file_exists(__DIR__ . '/../includes/email_helper.php')) {
-      require_once __DIR__ . '/../includes/email_helper.php';
+    // Fetch booking and user details for notifications
+    $notifSql = "SELECT b.booking_id, b.ref_code, b.qty, b.start_at, b.end_at, b.admin_note,
+                        u.email, u.name as user_name, u.telegram_chat_id,
+                        i.name as item_name
+                 FROM bookings b
+                 JOIN users u ON b.user_id = u.id
+                 LEFT JOIN inventory_items i ON b.item_id = i.item_id
+                 WHERE b.ref_code = ?";
+    
+    if ($notifStmt = $conn->prepare($notifSql)) {
+      $notifStmt->bind_param('s', $ref);
+      $notifStmt->execute();
+      $notifResult = $notifStmt->get_result();
       
-      // Fetch booking and user details for email notification
-      $emailSql = "SELECT b.ref_code, b.start_at, b.end_at, b.admin_note,
-                          u.email, u.name as user_name,
-                          i.name as item_name
-                   FROM bookings b
-                   JOIN users u ON b.user_id = u.id
-                   LEFT JOIN inventory_items i ON b.item_id = i.item_id
-                   WHERE b.ref_code = ?";
-      
-      if ($emailStmt = $conn->prepare($emailSql)) {
-        $emailStmt->bind_param('s', $ref);
-        $emailStmt->execute();
-        $emailResult = $emailStmt->get_result();
+      if ($notifData = $notifResult->fetch_assoc()) {
+        // Prepare notification data
+        $bookingData = [
+          'booking_id' => $notifData['booking_id'],
+          'ref_code' => $notifData['ref_code'],
+          'item_name' => $notifData['item_name'],
+          'quantity' => $notifData['qty'],
+          'start_date' => date('F j, Y', strtotime($notifData['start_at'])),
+          'end_date' => date('F j, Y', strtotime($notifData['end_at'])),
+          'admin_note' => $notifData['admin_note']
+        ];
         
-        if ($emailData = $emailResult->fetch_assoc()) {
-          // Send email notification
-          $bookingData = [
-            'ref_code' => $emailData['ref_code'],
-            'item_name' => $emailData['item_name'],
-            'start_at' => date('F j, Y', strtotime($emailData['start_at'])),
-            'end_at' => date('F j, Y', strtotime($emailData['end_at'])),
-            'admin_note' => $emailData['admin_note']
-          ];
-          
+        // Send Email Notification
+        if (file_exists(__DIR__ . '/../includes/email_helper.php')) {
+          require_once __DIR__ . '/../includes/email_helper.php';
           sendBookingNotification(
-            $emailData['email'],
-            $emailData['user_name'],
+            $notifData['email'],
+            $notifData['user_name'],
             $action,
             $bookingData
           );
         }
-        $emailStmt->close();
+        
+        // Send Telegram Notification
+        if (file_exists(__DIR__ . '/../includes/telegram_helper.php')) {
+          require_once __DIR__ . '/../includes/telegram_helper.php';
+          if (!empty($notifData['telegram_chat_id'])) {
+            error_log("Sending Telegram to Chat ID: " . $notifData['telegram_chat_id']);
+            $telegramResult = sendTelegramNotification(
+              $notifData['telegram_chat_id'],
+              $notifData['user_name'],
+              $action,
+              $bookingData
+            );
+            error_log("Telegram send result: " . ($telegramResult ? 'SUCCESS' : 'FAILED'));
+          } else {
+            error_log("No Telegram Chat ID found for user: " . $notifData['user_name']);
+          }
+        } else {
+          error_log("Telegram helper file not found");
+        }
       }
+      $notifStmt->close();
     }
   } catch (Exception $e) {
     // Log error but continue - don't fail the booking update
-    error_log("Email notification failed: " . $e->getMessage());
+    error_log("Notification failed: " . $e->getMessage());
   }
   
   echo json_encode(['ok'=>true, 'message'=>'Updated']);

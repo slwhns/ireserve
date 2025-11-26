@@ -140,8 +140,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Fetching results...');
             
-            // Fetch search results
-            fetch('/ireserve/user/search_items.php?q=' + encodeURIComponent(query))
+            // Fetch search results with date parameters
+            let queryString = 'q=' + encodeURIComponent(query);
+            if (startDate && endDate) {
+                queryString += '&start_date=' + encodeURIComponent(startDate);
+                queryString += '&end_date=' + encodeURIComponent(endDate);
+            }
+            
+            fetch('/ireserve/user/search_items.php?' + queryString)
                 .then(response => response.json())
                 .then(data => {
                     if (data.ok && data.results.length > 0) {
@@ -191,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p><strong>Category:</strong> ${item.category}</p>
                     <p><strong>SKU:</strong> ${item.sku}</p>
                     <p><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span></p>
-                    <p><strong>Available:</strong> ${available} / ${item.quantity}</p>
+                    <p><strong>Available (${startDate} to ${endDate}):</strong> ${available} / ${item.quantity}</p>
                     <p><strong>Requested:</strong> ${requestedQty} units</p>
                     ${canBook ? 
                         `<p style="color: green;"><i class="ri-checkbox-circle-line"></i> <strong>Available for your booking</strong></p>
@@ -211,9 +217,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="ri-close-circle-line"></i> Cannot Book (${statusText})
                          </button>`
                         :
+                        available === 0 ?
+                        `<p style="color: red;"><i class="ri-close-circle-line"></i> <strong>Fully booked for selected dates</strong></p>
+                         <button class="btn-unavailable" disabled>
+                            <i class="ri-close-circle-line"></i> Fully Booked
+                         </button>`
+                        :
                         `<p style="color: red;"><i class="ri-close-circle-line"></i> <strong>Insufficient quantity (Only ${available} available)</strong></p>
                          <button class="btn-unavailable" disabled>
-                            <i class="ri-close-circle-line"></i> Not Available
+                            <i class="ri-close-circle-line"></i> Not Enough Quantity
                          </button>`
                     }
                 </div>
