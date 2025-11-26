@@ -77,8 +77,7 @@ if ($item_status === 'maintenance' || $item_status === 'unavailable') {
 // Bookings overlap if: (start_at <= end_date AND end_at >= start_date)
 // Only count approved and taken bookings (pending/rejected/returned don't block availability)
 $checkAvailStmt = $conn->prepare("
-    SELECT COALESCE(SUM(b.qty), 0) AS qty_booked,
-           GROUP_CONCAT(CONCAT('ID:', b.booking_id, ' Ref:', b.ref_code, ' Status:', b.status, ' Dates:', DATE(b.start_at), ' to ', DATE(b.end_at)) SEPARATOR '; ') AS blocking_bookings
+    SELECT COALESCE(SUM(b.qty), 0) AS qty_booked
     FROM bookings b
     WHERE b.item_id = ?
     AND b.status IN ('approved', 'taken')
@@ -93,16 +92,6 @@ $checkAvailStmt->close();
 
 $qty_booked = (int)$availData['qty_booked'];
 $available = (int)$item['quantity'] - $qty_booked;
-
-// Debug logging
-error_log("=== BOOKING AVAILABILITY CHECK ===");
-error_log("Item ID: $item_id, Item Name: " . $item['name']);
-error_log("Requested Dates: $start_date to $end_date");
-error_log("Total Quantity: " . $item['quantity']);
-error_log("Qty Booked (overlapping): $qty_booked");
-error_log("Available: $available");
-error_log("Blocking Bookings: " . ($availData['blocking_bookings'] ?? 'NONE'));
-error_log("===================================");
 
 // Check if item has any available quantity for the requested dates
 if ($available <= 0) {

@@ -103,9 +103,6 @@ $qty_booked = (int)$item_data['qty_booked'];
 $available_qty = (int)$item_data['quantity'] - $qty_booked;
 $stmt->close();
 
-// Debug logging
-error_log("Edit Booking Check - Item ID: $item_id, Dates: $start_at to $end_at, Qty Booked: $qty_booked, Available: $available_qty");
-
 // Check if enough quantity is available for the requested dates
 if ($available_qty <= 0) {
     header("Location: /ireserve/user/editBooking.php?ref={$ref_code}&error=dates_fully_booked&start=" . urlencode($start_at) . "&end=" . urlencode($end_at));

@@ -1,15 +1,10 @@
 // User Page Booking Functionality
-console.log('user_booking.js loaded!');
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded fired!');
     // Check if we're on the user page
     const itemSearch = document.getElementById('itemSearch');
-    console.log('itemSearch element:', itemSearch);
     if (!itemSearch) {
-        console.log('itemSearch not found - exiting');
         return; // Exit if not on user page
     }
-    console.log('itemSearch found - continuing...');
 
     // Autocomplete dropdown for item search
     const searchDropdown = document.getElementById('searchDropdown');
@@ -28,11 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         searchTimeout = setTimeout(() => {
-            console.log('Fetching autocomplete for:', query);
             fetch('/ireserve/user/search_items.php?q=' + encodeURIComponent(query))
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Autocomplete data:', data);
                     if (data.ok && data.results.length > 0) {
                         displayAutocomplete(data.results);
                     } else {
@@ -102,22 +95,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsHeader = document.getElementById('resultsHeader');
     const resultsGrid = document.getElementById('resultsGrid');
     
-    console.log('Search button:', searchBtn);
-    console.log('Results header:', resultsHeader);
-    console.log('Results grid:', resultsGrid);
-    
     if (searchBtn) {
         searchBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            console.log('Search button clicked!');
             
             const query = itemSearch.value.trim();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const quantity = document.getElementById('quantity').value;
-            
-            console.log('Query:', query, 'Start:', startDate, 'End:', endDate, 'Qty:', quantity);
             
             if (!query) {
                 alert('Please enter an item name to search');
@@ -137,8 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show loading
             resultsHeader.textContent = 'Searching...';
             resultsGrid.innerHTML = '<div class="loading">Loading results...</div>';
-            
-            console.log('Fetching results...');
             
             // Fetch search results with date parameters
             let queryString = 'q=' + encodeURIComponent(query);

@@ -351,7 +351,6 @@ if ($preselected_item_id > 0) {
             const dateStr = `${year}-${month}-${day}`;
             
             const bookedQty = getQuantityBookedOnDate(dateStr);
-            console.log(`Checking date ${dateStr}: Booked ${bookedQty} / Total ${itemTotalQuantity}`);
             
             return bookedQty >= itemTotalQuantity;
         }
@@ -380,11 +379,6 @@ if ($preselected_item_id > 0) {
 
                         bookedDates = data.booked_ranges || [];
                         itemTotalQuantity = data.item.total_quantity;
-
-                        console.log('Loaded availability:', {
-                            bookedDates: bookedDates,
-                            totalQuantity: itemTotalQuantity
-                        });
 
                         // Update flatpickr to disable fully booked dates
                         const disableFunction = function(date) {

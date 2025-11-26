@@ -1,5 +1,4 @@
 // My Bookings Page JavaScript
-console.log('bookingsDetail.js loaded');
 
 document.addEventListener('DOMContentLoaded', function() {
     const filterTabs = document.querySelectorAll('.filter-tab');
