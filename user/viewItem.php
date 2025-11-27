@@ -38,12 +38,7 @@ if ($item_id <= 0) {
 }
 
 // Fetch item details
-$stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
-                        COALESCE((
-                            SELECT SUM(b.qty)
-                            FROM bookings b
-                            WHERE b.item_id = i.item_id AND b.status = 'taken'
-                        ), 0) AS qty_taken
+$stmt = $conn->prepare("SELECT i.*, c.name AS category_name
                         FROM inventory_items i
                         LEFT JOIN categories c ON i.category_id = c.category_id
                         WHERE i.item_id = ?");
@@ -57,13 +52,10 @@ if ($result->num_rows == 0) {
 }
 
 $item = $result->fetch_assoc();
-$available = max(0, (int)$item['quantity'] - (int)$item['qty_taken']);
 $status = strtolower($item['status'] ?? 'active');
-$isAvailable = ($status == 'active' || $status == 'available') && $available > 0;
+// Allow booking if item status is not maintenance or retired (availability is date-based)
+$isAvailable = ($status != 'maintenance' && $status != 'retired' && $status != 'unavailable');
 $stmt->close();
-
-// DEBUG
-echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_taken'] . ", available=" . $available . ", status=" . $status . ", isAvailable=" . ($isAvailable ? 'true' : 'false') . " -->";
 ?>
 
 <!DOCTYPE html>
@@ -77,6 +69,7 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
     <link rel="stylesheet" href="/ireserve/assets/css/style.css">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
     <link rel="stylesheet" href="/ireserve/assets/css/allItems.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .item-details-container {
             max-width: 1200px;
@@ -271,6 +264,95 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
             color: #721c24;
         }
 
+        .availability-calendar {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .availability-calendar h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .legend-color.available {
+            background: #d4edda;
+        }
+
+        .legend-color.fully-booked {
+            background: #f8d7da;
+        }
+
+        .legend-color.partially-booked {
+            background: #fff3cd;
+        }
+
+        #availabilityCalendar {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        /* Flatpickr custom styles for availability */
+        .flatpickr-day.fully-booked {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border-color: #f5c6cb !important;
+            position: relative;
+        }
+
+        .flatpickr-day.fully-booked:hover {
+            background: #f5c6cb !important;
+        }
+
+        .flatpickr-day.fully-booked::after {
+            content: "✕";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .flatpickr-day.partially-booked {
+            background: #fff3cd !important;
+            color: #856404 !important;
+            border-color: #ffeaa7 !important;
+        }
+
+        .flatpickr-day.partially-booked:hover {
+            background: #ffeaa7 !important;
+        }
+
         @media (max-width: 968px) {
             .item-details-wrapper {
                 grid-template-columns: 1fr;
@@ -337,22 +419,32 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
                     </div>
                     <div class="availability-stats">
                         <div class="stat-box">
-                            <div class="stat-value" style="color: <?php echo ($status == 'active' || $status == 'available') && $available > 0 ? '#28a745' : '#dc3545'; ?>">
-                                <?php 
-                                if ($status == 'active' || $status == 'available') {
-                                    echo $available;
-                                } else {
-                                    echo '0';
-                                }
-                                ?>
+                            <div class="stat-value" style="color: <?php echo $isAvailable ? '#28a745' : '#dc3545'; ?>">
+                                <?php echo (int)$item['quantity']; ?>
                             </div>
-                            <div class="stat-label">Available</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value"><?php echo (int)$item['quantity']; ?></div>
                             <div class="stat-label">Total Quantity</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Availability Calendar -->
+                <div class="availability-calendar">
+                    <h3><i class="ri-calendar-line"></i> Availability Calendar</h3>
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <div class="legend-color available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color partially-booked"></div>
+                            <span>Partially Booked</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fully-booked"></div>
+                            <span>Fully Booked</span>
+                        </div>
+                    </div>
+                    <div id="availabilityCalendar"></div>
                 </div>
 
                 <?php if (!empty($item['description'])): ?>
@@ -376,7 +468,7 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
                         <?php 
                         if ($status == 'maintenance') echo 'Under Maintenance';
                         elseif ($status == 'retired') echo 'Retired';
-                        elseif ($available == 0) echo 'Fully Booked';
+                        elseif ($status == 'unavailable') echo 'Not Available';
                         else echo 'Not Available';
                         ?>
                     </button>
@@ -388,7 +480,67 @@ echo "<!-- DEBUG: quantity=" . $item['quantity'] . ", qty_taken=" . $item['qty_t
 
     <?php include __DIR__ . '/includes/footer.php'; ?>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/ireserve/assets/js/script.js"></script>
+    
+    <script>
+        // Initialize availability calendar
+        const itemId = <?php echo $item_id; ?>;
+        const itemTotalQuantity = <?php echo (int)$item['quantity']; ?>;
+        let bookedDates = [];
+
+        // Fetch availability data
+        fetch('/ireserve/user/get_item_availability.php?item_id=' + itemId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    bookedDates = data.booked_ranges || [];
+                    
+                    // Initialize flatpickr calendar
+                    flatpickr("#availabilityCalendar", {
+                        inline: true,
+                        mode: "range",
+                        minDate: "today",
+                        dateFormat: "Y-m-d",
+                        showMonths: 1,
+                        onDayCreate: function(dObj, dStr, fp, dayElem) {
+                            const date = dayElem.dateObj;
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const dateStr = `${year}-${month}-${day}`;
+                            
+                            // Calculate booked quantity for this date
+                            let bookedQty = 0;
+                            bookedDates.forEach(range => {
+                                const rangeStart = new Date(range.start);
+                                const rangeEnd = new Date(range.end);
+                                const currentDate = new Date(dateStr);
+                                
+                                if (currentDate >= rangeStart && currentDate <= rangeEnd) {
+                                    bookedQty += parseInt(range.quantity) || 0;
+                                }
+                            });
+                            
+                            // Apply styling based on availability
+                            if (bookedQty >= itemTotalQuantity) {
+                                dayElem.classList.add('fully-booked');
+                                dayElem.title = `Fully booked (${bookedQty}/${itemTotalQuantity})`;
+                            } else if (bookedQty > 0) {
+                                dayElem.classList.add('partially-booked');
+                                const available = itemTotalQuantity - bookedQty;
+                                dayElem.title = `${available} available (${bookedQty} booked)`;
+                            } else {
+                                dayElem.title = `${itemTotalQuantity} available`;
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading availability:', error);
+            });
+    </script>
     
     <?php if (!empty($item['latitude']) && !empty($item['longitude'])): ?>
     <script>

@@ -77,12 +77,7 @@ $total_pages = ceil($total_items / $items_per_page);
 
 // Fetch items
 $sql = "SELECT i.item_id, i.name, i.sku, i.location, i.image_url, i.quantity, i.status,
-               COALESCE(c.name, 'Uncategorized') AS category_name,
-               COALESCE((
-                   SELECT SUM(b.qty)
-                   FROM bookings b
-                   WHERE b.item_id = i.item_id AND b.status = 'taken'
-               ), 0) AS qty_taken
+               COALESCE(c.name, 'Uncategorized') AS category_name
         FROM inventory_items i
         LEFT JOIN categories c ON i.category_id = c.category_id
         WHERE {$where_clause}
@@ -180,10 +175,10 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
             <?php
             if ($result && $result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $available = max(0, (int)$row['quantity'] - (int)$row['qty_taken']);
                     $imagePath = !empty($row['image_url']) ? $row['image_url'] : '/ireserve/assets/images/no-image.png';
                     $status = strtolower($row['status'] ?? 'active');
-                    $isAvailable = ($status == 'active' || $status == 'available') && $available > 0;
+                    // Allow booking if status is not maintenance, retired, or unavailable
+                    $isAvailable = ($status != 'maintenance' && $status != 'retired' && $status != 'unavailable');
             ?>
             <div class="item-card">
                 <div class="item-image">
@@ -197,9 +192,9 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                     <div class="status-overlay retired-overlay">
                         <i class="ri-forbid-line"></i> Retired
                     </div>
-                    <?php elseif (!$isAvailable && $available == 0): ?>
+                    <?php elseif ($status == 'unavailable'): ?>
                     <div class="status-overlay unavailable-overlay">
-                        <i class="ri-close-circle-line"></i> Fully Booked
+                        <i class="ri-close-circle-line"></i> Unavailable
                     </div>
                     <?php endif; ?>
                 </div>
@@ -208,15 +203,9 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                     <p class="item-sku"><i class="ri-barcode-line"></i> SKU: <?php echo htmlspecialchars($row['sku']); ?></p>
                     <p class="item-location"><i class="ri-map-pin-line"></i> <?php echo htmlspecialchars($row['location'] ?? 'Location not specified'); ?></p>
                     <div class="item-quantity">
-                        <span class="qty-label">Available:</span>
-                        <span class="qty-value <?php echo ($status == 'active' || $status == 'available') && $available > 0 ? 'in-stock' : 'out-of-stock'; ?>">
-                            <?php 
-                            if ($status == 'active' || $status == 'available') {
-                                echo $available . ' / ' . (int)$row['quantity'];
-                            } else {
-                                echo '0 / ' . (int)$row['quantity'];
-                            }
-                            ?>
+                        <span class="qty-label">Total Quantity:</span>
+                        <span class="qty-value <?php echo $isAvailable ? 'in-stock' : 'out-of-stock'; ?>">
+                            <?php echo (int)$row['quantity']; ?>
                         </span>
                     </div>
                     <div class="item-actions">
@@ -235,6 +224,7 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
                             <?php 
                             if ($status == 'maintenance') echo 'Maintenance';
                             elseif ($status == 'retired') echo 'Retired';
+                            elseif ($status == 'unavailable') echo 'Unavailable';
                             else echo 'Not Available';
                             ?>
                         </button>
