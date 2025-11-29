@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 $user_email = $_SESSION['email'];
 
 // Fetch user details
-$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, course, faculty, picture_url, telegram_chat_id FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, program, faculty, picture_url, telegram_chat_id FROM users WHERE id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -23,7 +23,7 @@ $stmt->close();
 $user_name = $user['name'];
 $user_matrics = $user['matrics_number'] ?? '';
 $user_phone = $user['phone_number'] ?? '';
-$user_course = $user['course'] ?? '';
+$user_program = $user['program'] ?? '';
 $user_faculty = $user['faculty'] ?? '';
 $user_telegram = $user['telegram_chat_id'] ?? '';
 $user_picture = !empty($user['picture_url']) ? $user['picture_url'] : '/ireserve/assets/images/user.png';
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim($_POST['name']);
         $matrics_number = trim($_POST['matrics_number']);
         $phone_number = trim($_POST['phone_number']);
-        $course = trim($_POST['course']);
+        $program = trim($_POST['program']);
         $faculty = trim($_POST['faculty']);
         $email = trim($_POST['email']);
         
@@ -141,8 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Get Telegram Chat ID from POST
                 $telegram_chat_id = trim($_POST['telegram_chat_id'] ?? '');
                 
-                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, course = ?, faculty = ?, email = ?, telegram_chat_id = ? WHERE id = ?");
-                $update_stmt->bind_param('sssssssi', $name, $matrics_number, $phone_number, $course, $faculty, $email, $telegram_chat_id, $user_id);
+                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, program = ?, faculty = ?, email = ?, telegram_chat_id = ? WHERE id = ?");
+                $update_stmt->bind_param('sssssssi', $name, $matrics_number, $phone_number, $program, $faculty, $email, $telegram_chat_id, $user_id);
                 
                 if ($update_stmt->execute()) {
                     $_SESSION['name'] = $name;
@@ -269,8 +269,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" id="matrics_number" name="matrics_number" value="<?php echo htmlspecialchars($user_matrics); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="course">Course</label>
-                        <input type="text" id="course" name="course" value="<?php echo htmlspecialchars($user_course); ?>">
+                        <label for="program">Program</label>
+                        <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($user_program); ?>">
                     </div>
                     <div class="form-group">
                         <label for="faculty">Faculty</label>

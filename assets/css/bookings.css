@@ -29,7 +29,7 @@
     border: 1px solid #fca5a5;
 }
 
-.badge-taken {
+.badge-collect {
     background: #e0e7ff;
     color: #3730a3;
     border: 1px solid #a5b4fc;
@@ -105,6 +105,17 @@
 
 .btn-view:hover {
     background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.btn-collect {
+    background: #fcf4ba;
+    color: #92400e;
+    border: 1px solid #fcf4ba;
+}
+
+.btn-collect:hover {
+    background: #faf5cc;
     transform: translateY(-1px);
 }
 

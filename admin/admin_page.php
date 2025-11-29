@@ -104,7 +104,7 @@ if ($stmt) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Page | iReserve</title>
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=11">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -220,7 +220,7 @@ if ($stmt) {
                     </div>
                 </div>
 
-    <script src="/ireserve/assets/js/admin.js?v=8"></script>
+    <script src="/ireserve/assets/js/admin.js?v=9"></script>
     
     </body>
 

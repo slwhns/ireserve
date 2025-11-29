@@ -3,11 +3,11 @@
 <div class="navigation">
     <ul>
         <li class="logo">
-            <a href="/ireserve/admin/admin_page.php">
+            <a href="/ireserve/admin/admin_page.php" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; padding: 0;">
                 <span class="icon">
-                    <img class="brand-logo" src="/ireserve/assets/images/logo.png" alt="iReserve logo">
+                    <img class="brand-logo" src="/ireserve/assets/images/logo.png?v=5" alt="Logo">
                 </span>
-                <span class="title">iReserve</span>
+                <span class="title"></span>
             </a>
         </li>
 

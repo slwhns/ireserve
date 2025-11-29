@@ -31,7 +31,7 @@ if ($start_date && $end_date) {
                        SELECT SUM(b.qty)
                        FROM bookings b
                        WHERE b.item_id = i.item_id 
-                       AND b.status IN ('approved', 'taken')
+                       AND b.status IN ('approved', 'collect')
                        AND DATE(b.start_at) <= ?
                        AND DATE(b.end_at) >= ?
                    ), 0) AS qty_booked

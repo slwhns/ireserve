@@ -5,11 +5,25 @@ if (isset($_POST['register'])) {
     $name = $_POST['name'];
     $matrics_number = $_POST['matrics_number'];
     $phone_number = $_POST['phone_number'];
-    $course = $_POST['course'];
+    $program = $_POST['program'];
     $faculty = $_POST['faculty'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
     $role = 'user'; // Only allow user registration
+
+    // Check if passwords match
+    if ($password !== $confirm_password) {
+        // Start default session for error messages
+        session_start();
+        $_SESSION['register_error'] = "Passwords do not match.";
+        $_SESSION['active_form'] = 'register';
+        header("Location: index.php");
+        exit();
+    }
+
+    // Hash the password
+    $password = password_hash($password, PASSWORD_DEFAULT);
 
     // Check if email already exists
     $checkEmail = $conn->prepare("SELECT email FROM users WHERE email = ?");
@@ -25,17 +39,18 @@ if (isset($_POST['register'])) {
         $checkEmail->close();
     } else {
         $checkEmail->close();
-        
         // Set default profile picture
         $default_picture = '/ireserve/assets/images/user.png';
-        
         // Insert new user using prepared statement
-        $stmt = $conn->prepare("INSERT INTO users (name, matrics_number, phone_number, course, faculty, email, password, role, picture_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssssssss', $name, $matrics_number, $phone_number, $course, $faculty, $email, $password, $role, $default_picture);
+        $stmt = $conn->prepare("INSERT INTO users (name, matrics_number, phone_number, program, faculty, email, password, role, picture_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('sssssssss', $name, $matrics_number, $phone_number, $program, $faculty, $email, $password, $role, $default_picture);
         $stmt->execute();
         $stmt->close();
+        // Set session for success popup
+        session_start();
+        $_SESSION['register_success'] = true;
+        $_SESSION['active_form'] = 'login';
     }
-
     header("Location: index.php");
     exit();
 }

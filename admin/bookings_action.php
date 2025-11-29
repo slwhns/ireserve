@@ -13,7 +13,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 header('Content-Type: application/json');
 
-$valid = ['approved','rejected','taken','returned'];
+$valid = ['approved','rejected','collect','returned'];
 $action = $_POST['action'] ?? '';
 $ref    = $_POST['ref_code'] ?? '';
 $note   = trim($_POST['note'] ?? '');
@@ -30,8 +30,8 @@ if (!$adminId) {
 }
 
 // Update booking status
-// Build SQL to also mark actual period: when 'taken' => set start_at NOW(); when 'returned' => set end_at NOW()
-if ($action === 'taken') {
+// Build SQL to also mark actual period: when 'collect' => set start_at NOW(); when 'returned' => set end_at NOW()
+if ($action === 'collect') {
   $sql = "UPDATE bookings 
     SET status = ?, admin_note = ?, decided_by = ?, decided_at = NOW(), start_at = NOW()
     WHERE ref_code = ?";

@@ -12,7 +12,7 @@ function badge($status){
         'pending'  => 'badge badge-pending',
         'approved' => 'badge badge-approved',
         'rejected' => 'badge badge-rejected',
-        'taken'    => 'badge badge-taken',
+        'collect'  => 'badge badge-collect',
         'returned' => 'badge badge-returned',
     ];
     $cls = $map[$status] ?? 'badge';
@@ -118,9 +118,9 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookings | iReserve</title>
-    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=4">
-    <link rel="stylesheet" href="/ireserve/assets/css/bookings.css?v=6">
+    <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=11">
+    <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=5">
+    <link rel="stylesheet" href="/ireserve/assets/css/bookings.css?v=8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
@@ -149,7 +149,7 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
         <input type="text" name="q" placeholder="Search user, item..." value="<?=h($search)?>">
         <select name="status">
             <option value="">All status</option>
-            <?php foreach (['pending','approved','taken','rejected','returned'] as $s): ?>
+            <?php foreach (['pending','approved','collect','rejected','returned'] as $s): ?>
                 <option value="<?=$s?>" <?=$status===$s?'selected':''?>><?=ucfirst($s)?></option>
             <?php endforeach; ?>
         </select>
@@ -181,7 +181,7 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
             <td>Start</td>
             <td>End</td>
             <td>Status</td>
-            <td style="text-align:right;">Actions</td>
+            <td style="text-align:center;">Actions</td>
         </tr>
     </thead>
     <tbody>
@@ -204,9 +204,9 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
                         <button class="btn-sm btn-approve" data-ref="<?=h($r['ref_code'])?>" data-action="approved">Approve</button>
                         <button class="btn-sm btn-reject"  data-ref="<?=h($r['ref_code'])?>" data-action="rejected">Reject</button>
                     <?php elseif ($r['status']==='approved'): ?>
-                        <button class="btn-sm btn-taken"  data-ref="<?=h($r['ref_code'])?>" data-action="taken">Mark as Taken</button>
-                    <?php elseif ($r['status']==='taken'): ?>
-                        <button class="btn-sm btn-return"  data-ref="<?=h($r['ref_code'])?>" data-action="returned">Mark Returned</button>
+                        <button class="btn-sm btn-collect"  data-ref="<?=h($r['ref_code'])?>" data-action="collect">Mark as Collected</button>
+                    <?php elseif ($r['status']==='collect'): ?>
+                        <button class="btn-sm btn-return"  data-ref="<?=h($r['ref_code'])?>" data-action="returned">Mark as Returned</button>
                     <?php endif; ?>
                 </div>
             </td>
@@ -272,6 +272,6 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
     <div class="actions"><button id="md-close">Close</button></div>
 </div>
 
-<script src="/ireserve/assets/js/admin.js?v=8"></script>
+<script src="/ireserve/assets/js/admin.js?v=9"></script>
 </body>
 </html>

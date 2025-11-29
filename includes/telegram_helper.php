@@ -11,7 +11,7 @@ require_once __DIR__ . '/telegram_config.php';
  * 
  * @param string $chatId User's Telegram Chat ID
  * @param string $userName User's name
- * @param string $status Booking status (approved, rejected, taken, returned)
+ * @param string $status Booking status (approved, rejected, collect, returned)
  * @param array $bookingData Booking details
  * @return bool Success status
  */

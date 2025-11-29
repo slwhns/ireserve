@@ -71,9 +71,9 @@ if ($user_id > 0) {
                 <i class="ri-checkbox-circle-line"></i>
                 Approved
             </div>
-            <div class="filter-tab" data-filter="taken">
+            <div class="filter-tab" data-filter="collect">
                 <i class="ri-hand-coin-line"></i>
-                Taken
+                Collected
             </div>
             <div class="filter-tab" data-filter="returned">
                 <i class="ri-arrow-go-back-line"></i>

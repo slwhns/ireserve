@@ -25,7 +25,7 @@ define('EMAIL_FROM_NAME', 'iReserve - UPSI'); // Display name for emails
 // Email Templates
 define('EMAIL_SUBJECT_APPROVED', 'Your Booking Has Been Approved - iReserve');
 define('EMAIL_SUBJECT_REJECTED', 'Your Booking Has Been Rejected - iReserve');
-define('EMAIL_SUBJECT_TAKEN', 'Your Item is Ready for Collection - iReserve');
+define('EMAIL_SUBJECT_COLLECT', 'Your Item is Ready for Collection - iReserve');
 define('EMAIL_SUBJECT_RETURNED', 'Item Return Confirmed - iReserve');
 
 /**

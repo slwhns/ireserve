@@ -46,12 +46,12 @@ if ($status === 'maintenance' || $status === 'unavailable') {
     exit;
 }
 
-// Get all approved/taken bookings for this item
+// Get all approved/collect bookings for this item
 $bookingsStmt = $conn->prepare("
     SELECT DATE(start_at) as start_date, DATE(end_at) as end_date, qty, status, ref_code
     FROM bookings
     WHERE item_id = ?
-    AND status IN ('approved', 'taken')
+    AND status IN ('approved', 'collect')
     ORDER BY start_at
 ");
 $bookingsStmt->bind_param('i', $item_id);

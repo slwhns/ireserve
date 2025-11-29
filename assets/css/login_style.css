@@ -53,6 +53,33 @@ select {
     margin-bottom: 20px;
 }
 
+.password-field {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 45px;
+    margin-bottom: 0;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+    transition: color 0.3s;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: #7494ec;
+}
+
 button {
     width: 100%;
     padding: 12px;

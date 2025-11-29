@@ -60,13 +60,13 @@ if ($user_id > 0) {
         <div class="about-section">
             <h2><i class="ri-building-line"></i> Who We Are</h2>
             <p>
-                iReserve is a comprehensive inventory management and reservation system designed to streamline the process 
-                of booking and managing equipment, tools, and resources. We provide an intuitive platform that connects users 
-                with the items they need, when they need them.
+                iReserve is a dedicated facility and equipment reservation system developed exclusively for Universiti Pendidikan Sultan Idris (UPSI).
+                Our platform streamlines the process of booking and managing university-owned resources—such as equipment, tools, rooms, and facilities—ensuring
+                that students, lecturers, and staff can access what they need efficiently and hassle-free.
             </p>
             <p>
-                Our mission is to make resource management simple, efficient, and accessible for everyone. Whether you're 
-                looking to reserve equipment for a project, event, or personal use, iReserve makes the process seamless.
+                Our goal is to make resource management at UPSI more organized and accessible, so you can focus on what matters.
+                With iReserve, getting what you need is just a few clicks away.
             </p>
         </div>
 
@@ -111,8 +111,8 @@ if ($user_id > 0) {
             <p><strong>1. Browse:</strong> Explore available items through our catalog or use the search feature.</p>
             <p><strong>2. Book:</strong> Select your desired item, choose dates and quantity, then submit your booking request.</p>
             <p><strong>3. Approve:</strong> Wait for admin approval. You'll be notified of the decision.</p>
-            <p><strong>4. Take:</strong> Once approved and the start date arrives, pick up your reserved item.</p>
-            <p><strong>5. Return:</strong> Return the item by the end date to complete the booking cycle.</p>
+            <p><strong>4. Collect:</strong> Once approved and the start date arrives, pick up your reserved item.</p>
+            <p><strong>5. Return:</strong> Return the item.</p>
         </div>
 
         <div class="contact-info">

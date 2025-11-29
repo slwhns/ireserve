@@ -11,7 +11,7 @@ require_once __DIR__ . '/email_config.php';
  * 
  * @param string $userEmail Recipient email address
  * @param string $userName User's name
- * @param string $status Booking status (approved, rejected, taken, returned)
+ * @param string $status Booking status (approved, rejected, collect, returned)
  * @param array $bookingData Booking details
  * @return bool Success status
  */
@@ -96,8 +96,8 @@ function getEmailSubject($status) {
             return EMAIL_SUBJECT_APPROVED;
         case 'rejected':
             return EMAIL_SUBJECT_REJECTED;
-        case 'taken':
-            return EMAIL_SUBJECT_TAKEN;
+        case 'collect':
+            return EMAIL_SUBJECT_COLLECT;
         case 'returned':
             return EMAIL_SUBJECT_RETURNED;
         default:

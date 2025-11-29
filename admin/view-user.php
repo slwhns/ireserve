@@ -19,7 +19,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $user_id = (int)$_GET['id'];
 
 // Fetch user details
-$sql = "SELECT id, name, email, phone_number, matrics_number, course, faculty, role, picture_url FROM users WHERE id = ?";
+$sql = "SELECT id, name, email, phone_number, matrics_number, program, faculty, role, picture_url FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
@@ -102,8 +102,8 @@ if ($stmt) {
                         </div>
 
                         <div class="detail-row">
-                            <label><i class="bi bi-journal-bookmark"></i> Course:</label>
-                            <span><?php echo htmlspecialchars($user['course'] ?? '—'); ?></span>
+                            <label><i class="bi bi-journal-bookmark"></i> Program:</label>
+                            <span><?php echo htmlspecialchars($user['program'] ?? '—'); ?></span>
                         </div>
 
                         <div class="detail-row">

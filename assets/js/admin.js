@@ -133,7 +133,7 @@ function openBookingModal(data) {
         'pending': { bg: '#fef3c7', border: '#fcd34d', text: '#92400e' },
         'approved': { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
         'rejected': { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
-        'taken': { bg: '#e0e7ff', border: '#a5b4fc', text: '#3730a3' },
+        'collect': { bg: '#e0e7ff', border: '#a5b4fc', text: '#3730a3' },
         'returned': { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af' }
     };
     const statusColor = statusColors[data.status] || statusColors.pending;
@@ -152,9 +152,9 @@ function openBookingModal(data) {
     // Build audit strip if decision was made
     let auditStrip = '';
     if (data.decided_at && data.status !== 'pending') {
-        const auditClass = data.status === 'rejected' ? 'rejected' : (data.status === 'returned' ? 'returned' : (data.status === 'taken' ? 'taken' : ''));
-        const auditIcon = data.status === 'approved' ? 'bi-check-circle-fill' : (data.status === 'rejected' ? 'bi-x-circle-fill' : (data.status === 'taken' ? 'bi-box-arrow-up' : 'bi-arrow-return-left'));
-        const statusText = data.status === 'approved' ? 'Approved' : (data.status === 'rejected' ? 'Rejected' : (data.status === 'taken' ? 'Marked as taken' : 'Marked as returned'));
+        const auditClass = data.status === 'rejected' ? 'rejected' : (data.status === 'returned' ? 'returned' : (data.status === 'collect' ? 'collect' : ''));
+        const auditIcon = data.status === 'approved' ? 'bi-check-circle-fill' : (data.status === 'rejected' ? 'bi-x-circle-fill' : (data.status === 'collect' ? 'bi-box-arrow-up' : 'bi-arrow-return-left'));
+        const statusText = data.status === 'approved' ? 'Approved' : (data.status === 'rejected' ? 'Rejected' : (data.status === 'collect' ? 'Marked as collected' : 'Marked as returned'));
         auditStrip = `
             <div class="audit-strip ${auditClass}">
                 <i class="bi ${auditIcon}"></i>

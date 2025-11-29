@@ -75,12 +75,12 @@ if ($item_status === 'maintenance' || $item_status === 'unavailable') {
 // Check availability for the requested date range
 // Count quantity already booked during the requested period
 // Bookings overlap if: (start_at <= end_date AND end_at >= start_date)
-// Only count approved and taken bookings (pending/rejected/returned don't block availability)
+// Only count approved and collect bookings (pending/rejected/returned don't block availability)
 $checkAvailStmt = $conn->prepare("
     SELECT COALESCE(SUM(b.qty), 0) AS qty_booked
     FROM bookings b
     WHERE b.item_id = ?
-    AND b.status IN ('approved', 'taken')
+    AND b.status IN ('approved', 'collect')
     AND DATE(b.start_at) <= ?
     AND DATE(b.end_at) >= ?
 ");

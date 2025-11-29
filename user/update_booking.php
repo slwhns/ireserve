@@ -82,7 +82,7 @@ $check_qty_sql = "SELECT i.quantity,
                       SELECT SUM(b.qty)
                       FROM bookings b
                       WHERE b.item_id = ?
-                      AND b.status IN ('approved', 'taken')
+                      AND b.status IN ('approved', 'collect')
                       AND b.ref_code != ?
                       AND DATE(b.start_at) <= ?
                       AND DATE(b.end_at) >= ?
