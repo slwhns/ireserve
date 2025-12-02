@@ -35,9 +35,9 @@ if ($user_id > 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookings - iReserve</title>
+    <title>My Bookings | iReserve</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/ireserve/assets/css/style.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/style.css?v=2">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
     <link rel="stylesheet" href="/ireserve/assets/css/bookingsDetail.css">
     <link rel="stylesheet" href="/ireserve/assets/css/settings.css">

@@ -203,11 +203,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - iReserve</title>
+    <title>Settings | iReserve</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/ireserve/assets/css/style.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/style.css?v=2">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
-    <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=2">
+    <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=3">
 </head>
 <body>
     <?php include __DIR__ . '/includes/header.php'; ?>
@@ -326,36 +326,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="ri-key-line"></i> Change Password
                     </button>
                 </form>
-            </div>
-
-            <!-- Account Info -->
-            <div class="settings-card full-width">
-                <div class="card-header">
-                    <h2><i class="ri-information-line"></i> Account Information</h2>
-                </div>
-                <div class="info-grid-horizontal">
-                    <div class="info-item">
-                        <i class="ri-user-line"></i>
-                        <div>
-                            <strong>Name</strong>
-                            <p><?php echo htmlspecialchars($user_name); ?></p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="ri-mail-line"></i>
-                        <div>
-                            <strong>Email</strong>
-                            <p><?php echo htmlspecialchars($user_email); ?></p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="ri-shield-user-line"></i>
-                        <div>
-                            <strong>Role</strong>
-                            <p>User</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

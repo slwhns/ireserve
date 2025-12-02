@@ -13,19 +13,6 @@
     --border-color: #e5e7eb;
 }
 
-/* Dark Mode Colors - Eye-Friendly Scheme */
-body.dark-mode {
-    --primary-color: #6366F1;
-    --primary-color-dark: #818CF8;
-    --text-dark: #E2E8F0;
-    --text-light: #94A3B8;
-    --extra-light: #334155;
-    --white: #1E293B;
-    --bg-color: #0F172A;
-    --card-bg: #1E293B;
-    --border-color: #334155;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -61,20 +48,10 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode eye comfort - reduced brightness for images */
-body.dark-mode img {
-    opacity: 0.9;
-    transition: opacity 0.3s ease;
-}
-
-body.dark-mode img:hover {
-    opacity: 1;
-}
-
 nav {
     max-width: var(--max-width);
     margin: auto;
-    padding: 2rem 1rem;
+    padding: 10px 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;

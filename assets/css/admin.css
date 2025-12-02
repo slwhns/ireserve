@@ -75,7 +75,10 @@ body {
 /* Position logout at bottom */
 .navigation ul li:last-child {
     margin-top: auto;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .navigation ul li:hover, 
@@ -99,7 +102,7 @@ body {
     width: 100%;
     display: flex;
     text-decoration: none;
-    color: var(--black2);
+    color: var(--black1);
     font-weight: 500;
     transition: 0.3s ease;
 } 
@@ -148,7 +151,7 @@ body {
 
 /* Remove background for logo icon */
 .navigation ul li.logo a .icon {
-    background: white !important;
+    background: none;
     border-radius: 10px;
     padding: 15px;
     width: 100%;
@@ -161,8 +164,8 @@ body {
 .navigation ul li.logo a .icon img,
 .navigation ul li a .icon img,
 .brand-logo{
-    width: 120px !important;
-    height: 120px !important;
+    width: 120px;
+    height: 120px;
   object-fit: contain;
   display: inline-block;
   vertical-align: middle;
@@ -170,7 +173,7 @@ body {
 
 /* Logo styling */
 .navigation ul li.logo {
-    margin-bottom: 30px !important;
+    margin-bottom: 20px;
 }
 
 .navigation ul li.logo a {

@@ -103,9 +103,9 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Items - iReserve</title>
+    <title>All Items | iReserve</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/ireserve/assets/css/style.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/style.css?v=3">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
     <link rel="stylesheet" href="/ireserve/assets/css/allItems.css">
     <link rel="stylesheet" href="/ireserve/assets/css/settings.css">
@@ -131,7 +131,7 @@ $categories = $conn->query("SELECT category_id, name FROM categories ORDER BY na
         </div>
 
         <div class="all-items-header">
-            <h1><i class="ri-stack-line"></i> All Available Items</h1>
+            <h1><i class="ri-stack-line"></i> All Items</h1>
         </div>
 
         <!-- Filter Section -->

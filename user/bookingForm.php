@@ -59,7 +59,7 @@ if ($preselected_item_id > 0) {
     <title>Book Item | iReserve</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="/ireserve/assets/css/style.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/style.css?v=2">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
     <link rel="stylesheet" href="/ireserve/assets/css/bookingForm.css">
     <link rel="stylesheet" href="/ireserve/assets/css/allItems.css">

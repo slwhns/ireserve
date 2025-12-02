@@ -41,12 +41,12 @@ if ($stmt) {
 }
 
 // Get total admins count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin'");
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings WHERE status IN ('approved', 'returned')");
 if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($row = $result->fetch_assoc()) {
-        $totalAdmins = $row['count'];
+        $totalBookings = $row['count'];
     }
     $stmt->close();
 }
@@ -104,7 +104,7 @@ if ($stmt) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Page | iReserve</title>
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=11">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=12">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -148,11 +148,11 @@ if ($stmt) {
 
                     <div class="card">
                         <div>
-                            <div class="numbers"><?= h($totalAdmins) ?></div>
-                            <div class="cardName">Admin</div>
+                            <div class="numbers"><?= h($totalBookings) ?></div>
+                            <div class="cardName">Total Bookings</div>
                         </div>
                         <div class="iconBx">
-                            <i class="bi bi-person-badge"></i>
+                            <i class="bi bi-calendar-check"></i>
                         </div>
                     </div>
                 </div>

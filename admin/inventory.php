@@ -13,7 +13,7 @@ $currentPage = 'inventory';
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Inventory | iReserve</title>
         <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-        <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=5">
+        <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=6">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
@@ -64,7 +64,7 @@ $currentPage = 'inventory';
                         echo '<div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> ' . $message . '</div>';
                     }
                     ?>
-                    
+
                     <div class="inventory-content-wrapper">
                         <div class="inventoryTable">
                         <div class="cardHeader" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -78,10 +78,10 @@ $currentPage = 'inventory';
                                 </div>
                             </div>
                             <div class="cardHeader-right" style="display:flex;align-items:center;gap:8px;">
+                                <a href="/ireserve/admin/inventory_add.php" class="btn">Add Item</a>
                                 <a href="/ireserve/admin/admin_page.php" class="btn-back-simple">
                                     <i class="bi bi-arrow-left"></i> Back
                                 </a>
-                                <a href="/ireserve/admin/inventory_add.php" class="btn">Add Item</a>
                             </div>
                         </div>
 
@@ -387,7 +387,7 @@ $currentPage = 'inventory';
                     clearTimeout(invTimeout);
                     const q = e.target.value.trim();
                     if (q.length < 2) { invResults.style.display = 'none'; invResults.innerHTML = ''; return; }
-                    invTimeout = setTimeout(()=>{
+                     invTimeout = setTimeout(()=>{
                         fetch('/ireserve/admin/search_item.php?q=' + encodeURIComponent(q))
                         .then(r => {
                             if (!r.ok) {

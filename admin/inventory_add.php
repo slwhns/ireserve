@@ -185,8 +185,8 @@ require_once 'includes/sidebar.php';
     let map, marker;
     
     function initMap() {
-        // Default location (Kota Bharu, Kelantan, Malaysia)
-        const defaultLocation = { lat: 6.1167, lng: 102.2833 };
+        // Default location (UPSI)
+        const defaultLocation = { lat: 3.685515, lng: 101.524744};
         
         map = new google.maps.Map(document.getElementById('locationMap'), {
             zoom: 13,

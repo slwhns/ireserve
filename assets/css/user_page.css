@@ -1,26 +1,4 @@
-/* User Page Specific Styles */
-
-/* Dark Mode Toggle Button */
-.dark-mode-toggle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--border-color);
-    background: var(--card-bg);
-    color: var(--text-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.3rem;
-}
-
-.dark-mode-toggle:hover {
-    background: var(--extra-light);
-    border-color: var(--primary-color);
-    transform: scale(1.05);
-}
+/* User Page Styles */
 
 /* Profile Dropdown */
 .user-profile-menu {

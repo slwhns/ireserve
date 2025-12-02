@@ -25,7 +25,7 @@ $status      = $_POST['status'];
 $location    = trim($_POST['location'] ?? '');
 $latitude    = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
 $longitude   = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
-$created_by  = $_SESSION['user_id'] ?? null; // Assuming user_id is stored in session
+$created_by  = $_SESSION['user_id'] ?? null;
 $image_url   = null;
 
 // Validate required fields
@@ -85,19 +85,20 @@ $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sisissiddsi", 
-        $name, 
-        $category_id, 
-        $sku, 
-        $description, 
-        $quantity, 
-        $status, 
+        "sississddsi",
+        $name,
+        $category_id,
+        $sku,
+        $description,
+        $quantity,
+        $status,
         $location,
         $latitude,
         $longitude,
-        $image_url, 
+        $image_url,
         $created_by
     );
+
     
     if ($stmt->execute()) {
         $stmt->close();

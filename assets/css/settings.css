@@ -78,7 +78,7 @@
 .settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
+    gap: 30px;
 }
 
 .settings-card {
@@ -93,7 +93,7 @@
 }
 
 .settings-card .card-header {
-    padding: 20px 30px;
+    padding: 0px 0px;
     background: linear-gradient(135deg, var(--blue), rgba(42, 33, 133, 0.9));
     color: var(--white);
     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
