@@ -17,9 +17,20 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $item_id = (int)$_GET['id'];
 
-// Get item details first (to delete image if exists)
-$sql = "SELECT image_url FROM inventory_items WHERE item_id = ?";
-$stmt = $conn->prepare($sql);
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
+// Get item details and verify it belongs to admin's faculty
+if ($adminFacultyId) {
+    $sql = "SELECT i.image_url FROM inventory_items i 
+            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+            WHERE i.item_id = ? AND f.faculty_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $item_id, $adminFacultyId);
+} else {
+    header("Location: inventory.php?error=unauthorized");
+    exit();
+}
 
 if ($stmt) {
     $stmt->bind_param("i", $item_id);

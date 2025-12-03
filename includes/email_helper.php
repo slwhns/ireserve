@@ -222,4 +222,80 @@ function getEmailBody($userName, $status, $bookingData) {
 
     return $html;
 }
+
+/**
+ * Generic send email function for admin invitations and other purposes
+ * 
+ * @param string $to Recipient email address
+ * @param string $subject Email subject
+ * @param string $body HTML email body
+ * @return bool Success status
+ */
+function send_email($to, $subject, $body) {
+    if (!EMAIL_ENABLED) {
+        error_log("Email disabled. Would have sent to: $to");
+        return false;
+    }
+
+    // Use PHPMailer if SMTP is enabled
+    if (EMAIL_USE_SMTP) {
+        $phpmailerPath = __DIR__ . '/../vendor/autoload.php';
+        
+        if (!file_exists($phpmailerPath)) {
+            error_log("PHPMailer not found, falling back to PHP mail()");
+            return send_email_with_php_mail($to, $subject, $body);
+        }
+
+        require_once $phpmailerPath;
+
+        try {
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = SMTP_HOST;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = SMTP_USERNAME;
+            $mail->Password   = SMTP_PASSWORD;
+            $mail->SMTPSecure = SMTP_ENCRYPTION;
+            $mail->Port       = SMTP_PORT;
+
+            // Recipients
+            $mail->setFrom(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+            $mail->addAddress($to);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body    = $body;
+            $mail->AltBody = strip_tags($body);
+
+            $mail->send();
+            error_log("Email sent successfully to: $to");
+            return true;
+        } catch (\Exception $e) {
+            error_log("Email sending failed: " . $e->getMessage());
+            return false;
+        }
+    } else {
+        return send_email_with_php_mail($to, $subject, $body);
+    }
+}
+
+/**
+ * Send email using PHP's built-in mail() function
+ */
+function send_email_with_php_mail($to, $subject, $body) {
+    $headers = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: " . EMAIL_FROM_NAME . " <" . EMAIL_FROM_ADDRESS . ">\r\n";
+    
+    $result = mail($to, $subject, $body, $headers);
+    if ($result) {
+        error_log("Email sent successfully to: $to using PHP mail()");
+    } else {
+        error_log("Email sending failed to: $to using PHP mail()");
+    }
+    return $result;
+}
 ?>

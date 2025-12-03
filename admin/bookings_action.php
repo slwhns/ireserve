@@ -29,6 +29,29 @@ if (!$adminId) {
   exit;
 }
 
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
+// Verify booking belongs to admin's faculty before allowing action
+if ($adminFacultyId) {
+  $checkStmt = $conn->prepare("SELECT b.ref_code FROM bookings b 
+                               JOIN inventory_items i ON i.item_id = b.item_id 
+                               JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                               WHERE b.ref_code = ? AND f.faculty_id = ?");
+  $checkStmt->bind_param("si", $ref, $adminFacultyId);
+  $checkStmt->execute();
+  $checkResult = $checkStmt->get_result();
+  if ($checkResult->num_rows === 0) {
+    $checkStmt->close();
+    echo json_encode(['ok'=>false,'message'=>'Unauthorized - booking not in your faculty']);
+    exit;
+  }
+  $checkStmt->close();
+} else {
+  echo json_encode(['ok'=>false,'message'=>'No faculty assigned']);
+  exit;
+}
+
 // Update booking status
 // Build SQL to also mark actual period: when 'collect' => set start_at NOW(); when 'returned' => set end_at NOW()
 if ($action === 'collect') {

@@ -93,7 +93,7 @@
 }
 
 .settings-card .card-header {
-    padding: 0px 0px;
+    padding: 10px 10px;
     background: linear-gradient(135deg, var(--blue), rgba(42, 33, 133, 0.9));
     color: var(--white);
     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
@@ -105,7 +105,7 @@
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
 }
 
 .settings-card .card-header i {
@@ -357,6 +357,98 @@
     padding: 30px;
 }
 
+/* Notification Modal Styles */
+.modal-content.modal-alert {
+    max-width: 480px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content.modal-alert .modal-body {
+    padding: 40px 35px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1f2937;
+}
+
+.modal-content.modal-alert.success .modal-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 30px;
+}
+
+.modal-content.modal-alert.success .modal-header h3 {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-content.modal-alert.success .modal-header i {
+    color: white;
+    font-size: 22px;
+}
+
+.modal-content.modal-alert.error .modal-header {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 30px;
+}
+
+.modal-content.modal-alert.error .modal-header h3 {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-content.modal-alert.error .modal-header i {
+    color: white;
+    font-size: 22px;
+}
+
+.modal-content.modal-alert .modal-header .close {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 28px;
+}
+
+.modal-content.modal-alert .modal-header .close:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.modal-footer {
+    padding: 0;
+    text-align: center;
+    border-top: none;
+    background: transparent;
+}
+
+.modal-footer .btn,
+.modal-footer button {
+    width: 100%;
+    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+    color: white;
+    padding: 18px 28px;
+    border: none;
+    border-radius: 0 0 20px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    box-shadow: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-footer .btn:hover,
+.modal-footer button:hover {
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
+    transform: none;
+    box-shadow: none;
+}
+
 @keyframes modalSlideIn {
     from {
         opacity: 0;
@@ -376,6 +468,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: none;
 }
 
 .modal-header h3 {
@@ -384,19 +477,24 @@
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+}
+
+.modal-header i {
+    font-size: 22px;
 }
 
 .modal-header .close {
     font-size: 28px;
-    font-weight: bold;
+    font-weight: 300;
     cursor: pointer;
     color: var(--white);
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
+    line-height: 1;
 }
 
 .modal-header .close:hover {
-    transform: rotate(90deg);
+    transform: scale(1.1);
 }
 
 .modal-body {

@@ -18,8 +18,11 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $user_id = (int)$_GET['id'];
 
-// Fetch user details
-$sql = "SELECT id, name, email, phone_number, matrics_number, course, faculty, role, picture_url FROM users WHERE id = ?";
+// Fetch user details with faculty name
+$sql = "SELECT u.id, u.name, u.email, u.phone_number, u.matrics_number, u.program, u.faculty_id, u.role, u.picture_url, f.faculty_name 
+        FROM users u 
+        LEFT JOIN faculties f ON u.faculty_id = f.faculty_id 
+        WHERE u.id = ?";
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
@@ -37,6 +40,15 @@ if ($stmt) {
 } else {
     header("Location: userList.php?error=database_error");
     exit();
+}
+
+// Fetch all faculties for dropdown
+$faculties = [];
+$faculties_result = $conn->query("SELECT faculty_id, faculty_name FROM faculties ORDER BY faculty_name");
+if ($faculties_result) {
+    while ($row = $faculties_result->fetch_assoc()) {
+        $faculties[] = $row;
+    }
 }
 ?>
 
@@ -126,16 +138,23 @@ if ($stmt) {
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="course">
-                                    <i class="bi bi-journal-bookmark"></i> Course
+                                <label for="program">
+                                    <i class="bi bi-journal-bookmark"></i> Program
                                 </label>
-                                <input type="text" id="course" name="course" value="<?php echo htmlspecialchars($user['course'] ?? ''); ?>" maxlength="100">
+                                <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($user['program'] ?? ''); ?>" maxlength="100">
                             </div>
                             <div class="form-group">
-                                <label for="faculty">
+                                <label for="faculty_id">
                                     <i class="bi bi-building"></i> Faculty
                                 </label>
-                                <input type="text" id="faculty" name="faculty" value="<?php echo htmlspecialchars($user['faculty'] ?? ''); ?>" maxlength="100">
+                                <select id="faculty_id" name="faculty_id">
+                                    <option value="">-- Select Faculty --</option>
+                                    <?php foreach ($faculties as $fac): ?>
+                                        <option value="<?php echo $fac['faculty_id']; ?>" <?php echo ($user['faculty_id'] == $fac['faculty_id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($fac['faculty_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         </div>
 

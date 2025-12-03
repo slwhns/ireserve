@@ -105,10 +105,22 @@ require_once 'includes/sidebar.php';
 
                             <div class="form-group">
                                 <label for="location">
-                                    <i class="bi bi-geo-alt"></i> Location
+                                    <i class="bi bi-geo-alt"></i> Location <span class="required">*</span>
                                 </label>
-                                <input type="text" id="location" name="location" placeholder="e.g., Store A, Level 2">
-                                <small class="form-hint">Physical location of the item</small>
+                                <select id="location" name="location">
+                                    <option value="">-- Select Faculty Location --</option>
+                                    <?php
+                                    $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code FROM faculties ORDER BY faculty_name");
+                                    while ($faculty = $faculties->fetch_assoc()) {
+                                        $displayName = $faculty['faculty_name'];
+                                        if (!empty($faculty['faculty_code'])) {
+                                            $displayName .= ' (' . $faculty['faculty_code'] . ')';
+                                        }
+                                        echo "<option value='" . htmlspecialchars($displayName) . "'>" . htmlspecialchars($displayName) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <small class="form-hint">Faculty where the item is located</small>
                             </div>
                         </div>
 

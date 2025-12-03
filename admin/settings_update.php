@@ -57,15 +57,19 @@ if ($action === 'update_profile') {
         }
     }
 
+    // Prepare phone number variable
+    $phoneNumber = $_POST['phone_number'] ?? '';
+
     // Update database
-    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, picture_url = ? WHERE id = ?");
-    $stmt->bind_param('sssi', $name, $email, $picturePath, $adminId);
+    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, picture_url = ?, phone_number = ? WHERE id = ?");
+    $stmt->bind_param('ssssi', $name, $email, $picturePath, $phoneNumber, $adminId);
     
     if ($stmt->execute()) {
         // Update session
         $_SESSION['name'] = $name;
         $_SESSION['email'] = $email;
         $_SESSION['picture_url'] = $picturePath;
+        $_SESSION['phone_number'] = $phoneNumber;
         
         header("Location: settings.php?success=profile_updated");
     } else {

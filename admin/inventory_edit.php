@@ -22,10 +22,22 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 
 $item_id = (int)$_GET['id'];
+$current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 
-// Fetch item details
-$sql = "SELECT * FROM inventory_items WHERE item_id = ?";
-$stmt = $conn->prepare($sql);
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
+// Fetch item details and verify it belongs to admin's faculty
+if ($adminFacultyId) {
+    $sql = "SELECT i.* FROM inventory_items i 
+            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+            WHERE i.item_id = ? AND f.faculty_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $item_id, $adminFacultyId);
+} else {
+    header("Location: inventory.php?error=unauthorized");
+    exit();
+}
 
 if ($stmt) {
     $stmt->bind_param("i", $item_id);
@@ -55,7 +67,7 @@ if ($stmt) {
         <div class="form-card">
             <div class="form-header">
                 <h2><i class="bi bi-pencil-square"></i> Edit Item</h2>
-                <a href="/ireserve/admin/inventory.php" class="btn-back">
+                <a href="/ireserve/admin/inventory.php?page=<?php echo $current_page; ?>" class="btn-back">
                     <i class="bi bi-arrow-left"></i> Back to Inventory
                 </a>
             </div>
@@ -77,11 +89,10 @@ if ($stmt) {
             }
             ?>
 
-            <form action="inventory_update.php" method="POST" enctype="multipart/form-data" class="inventory-form">
-                <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
-                <input type="hidden" name="current_image" value="<?php echo htmlspecialchars($item['image_url']); ?>">
-                
-                <div class="form-row">
+                    <form action="inventory_update.php" method="POST" enctype="multipart/form-data" class="inventory-form">
+                        <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
+                        <input type="hidden" name="current_image" value="<?php echo htmlspecialchars($item['image_url']); ?>">
+                        <input type="hidden" name="page" value="<?php echo $current_page; ?>">                <div class="form-row">
                     <div class="form-group">
                         <label for="name">
                             <i class="bi bi-tag"></i> Item Name <span class="required">*</span>
@@ -138,10 +149,23 @@ if ($stmt) {
 
                     <div class="form-group">
                         <label for="location">
-                            <i class="bi bi-geo-alt"></i> Location
+                            <i class="bi bi-geo-alt"></i> Location <span class="required">*</span>
                         </label>
-                        <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($item['location']); ?>" placeholder="e.g., Store A, Level 2">
-                        <small class="form-hint">Physical location of the item</small>
+                        <select id="location" name="location">
+                            <option value="">-- Select Faculty Location --</option>
+                            <?php
+                            $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code FROM faculties ORDER BY faculty_name");
+                            while ($faculty = $faculties->fetch_assoc()) {
+                                $displayName = $faculty['faculty_name'];
+                                if (!empty($faculty['faculty_code'])) {
+                                    $displayName .= ' (' . $faculty['faculty_code'] . ')';
+                                }
+                                $selected = ($item['location'] == $displayName) ? 'selected' : '';
+                                echo "<option value='" . htmlspecialchars($displayName) . "' $selected>" . htmlspecialchars($displayName) . "</option>";
+                            }
+                            ?>
+                        </select>
+                        <small class="form-hint">Faculty where the item is located</small>
                     </div>
                 </div>
 

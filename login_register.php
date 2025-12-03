@@ -64,6 +64,12 @@ if (isset($_POST['login'])) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             
+            // Update last_login timestamp
+            $update_stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+            $update_stmt->bind_param("i", $user['id']);
+            $update_stmt->execute();
+            $update_stmt->close();
+            
             if ($user['role'] === 'admin') {
                 // Use separate session for admin
                 session_name('ireserve_admin');
@@ -72,6 +78,9 @@ if (isset($_POST['login'])) {
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = 'admin';
+                $_SESSION['phone_number'] = $user['phone_number'] ?? '';
+                $_SESSION['picture_url'] = $user['picture_url'] ?? '';
+                $_SESSION['faculty_id'] = $user['faculty_id'] ?? null;
                 header("Location: admin/admin_page.php");
             } else {
                 // Use separate session for user
@@ -81,6 +90,11 @@ if (isset($_POST['login'])) {
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = 'user';
+                $_SESSION['phone_number'] = $user['phone_number'] ?? '';
+                $_SESSION['matrics_number'] = $user['matrics_number'] ?? '';
+                $_SESSION['program'] = $user['program'] ?? '';
+                $_SESSION['faculty_id'] = $user['faculty_id'] ?? '';
+                $_SESSION['picture_url'] = $user['picture_url'] ?? '';
                 header("Location: user/user_page.php");
             }
             exit();

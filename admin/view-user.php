@@ -18,8 +18,11 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $user_id = (int)$_GET['id'];
 
-// Fetch user details
-$sql = "SELECT id, name, email, phone_number, matrics_number, program, faculty, role, picture_url FROM users WHERE id = ?";
+// Fetch user details with faculty name
+$sql = "SELECT u.id, u.name, u.email, u.phone_number, u.matrics_number, u.program, u.faculty_id, u.role, u.picture_url, f.faculty_name 
+        FROM users u 
+        LEFT JOIN faculties f ON u.faculty_id = f.faculty_id 
+        WHERE u.id = ?";
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
@@ -108,7 +111,7 @@ if ($stmt) {
 
                         <div class="detail-row">
                             <label><i class="bi bi-building"></i> Faculty:</label>
-                            <span><?php echo htmlspecialchars($user['faculty'] ?? '—'); ?></span>
+                            <span><?php echo htmlspecialchars($user['faculty_name'] ?? '—'); ?></span>
                         </div>
 
                         <div class="detail-row">

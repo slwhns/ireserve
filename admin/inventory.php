@@ -107,31 +107,50 @@ $currentPage = 'inventory';
                                 if ($page < 1) { $page = 1; }
                                 $offset = ($page - 1) * $perPage;
 
-                                // Total items for pagination
+                                // Total items for pagination - filter by admin's faculty
                                 $totalCount = 0;
-                                if ($totalRes = $conn->query("SELECT COUNT(*) AS total FROM inventory_items")) {
-                                    $totalRow = $totalRes->fetch_assoc();
-                                    $totalCount = isset($totalRow['total']) ? (int)$totalRow['total'] : 0;
+                                $adminFacultyId = $_SESSION['faculty_id'] ?? null;
+                                if ($adminFacultyId) {
+                                    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM inventory_items i 
+                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                                                            WHERE f.faculty_id = ?");
+                                    $stmt->bind_param('i', $adminFacultyId);
+                                    $stmt->execute();
+                                    $totalRes = $stmt->get_result();
+                                    if ($totalRes) {
+                                        $totalRow = $totalRes->fetch_assoc();
+                                        $totalCount = isset($totalRow['total']) ? (int)$totalRow['total'] : 0;
+                                    }
+                                    $stmt->close();
+                                } else {
+                                    $totalCount = 0;
                                 }
                                 $totalPages = max(1, (int)ceil($totalCount / $perPage));
                                 if ($page > $totalPages) { $page = $totalPages; $offset = ($page - 1) * $perPage; }
 
                                 // Fetch paginated items with category names and currently taken quantity
                                 // Available = total quantity - sum of quantities from active (status='taken') bookings
-                                $stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
-                                                            COALESCE((
-                                                                SELECT SUM(b.qty)
-                                                                FROM bookings b
-                                                                WHERE b.item_id = i.item_id AND b.status = 'taken'
-                                                            ), 0) AS qty_taken
-                                                        FROM inventory_items i
-                                                        JOIN categories c ON i.category_id = c.category_id
-                                                        ORDER BY i.item_id DESC
-                                                        LIMIT ? OFFSET ?");
-                                if ($stmt) {
-                                    $stmt->bind_param('ii', $perPage, $offset);
-                                    $stmt->execute();
-                                    $result = $stmt->get_result();
+                                // Filter by admin's faculty
+                                if ($adminFacultyId) {
+                                    $stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
+                                                                COALESCE((
+                                                                    SELECT SUM(b.qty)
+                                                                    FROM bookings b
+                                                                    WHERE b.item_id = i.item_id AND b.status = 'taken'
+                                                                ), 0) AS qty_taken
+                                                            FROM inventory_items i
+                                                            JOIN categories c ON i.category_id = c.category_id
+                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+                                                            WHERE f.faculty_id = ?
+                                                            ORDER BY i.item_id DESC
+                                                            LIMIT ? OFFSET ?");
+                                    if ($stmt) {
+                                        $stmt->bind_param('iii', $adminFacultyId, $perPage, $offset);
+                                        $stmt->execute();
+                                        $result = $stmt->get_result();
+                                    } else {
+                                        $result = false;
+                                    }
                                 } else {
                                     $result = false;
                                 }
@@ -156,7 +175,7 @@ $currentPage = 'inventory';
                                     <td><span class="status <?php echo htmlspecialchars($current_status); ?>"><?php echo ucfirst($current_status); ?></span></td>
                                     <td>
                                         <div class="action-col">
-                                            <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>" class="edit">Edit</a>
+                                            <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>&page=<?php echo $page; ?>" class="edit">Edit</a>
                                             <a href="/ireserve/admin/inventory_delete.php?id=<?php echo (int)$row['item_id']; ?>"
                                                class="delete"
                                                onclick="return confirm('Are you sure you want to delete this item? This action cannot be undone.');">Delete</a>
@@ -227,9 +246,18 @@ $currentPage = 'inventory';
                             <div class="card-info">
                                 <h4>Total Items</h4>
                                 <?php
-                                $totalItemsQuery = "SELECT COUNT(*) as total FROM inventory_items";
-                                $totalResult = $conn->query($totalItemsQuery);
-                                $totalItems = $totalResult->fetch_assoc()['total'];
+                                if ($adminFacultyId) {
+                                    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM inventory_items i 
+                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                                                            WHERE f.faculty_id = ?");
+                                    $stmt->bind_param('i', $adminFacultyId);
+                                    $stmt->execute();
+                                    $totalResult = $stmt->get_result();
+                                    $totalItems = $totalResult->fetch_assoc()['total'];
+                                    $stmt->close();
+                                } else {
+                                    $totalItems = 0;
+                                }
                                 ?>
                                 <p class="count"><?php echo $totalItems; ?></p>
                             </div>
@@ -245,12 +273,20 @@ $currentPage = 'inventory';
                             </div>
                             <div class="categories-list">
                                 <?php
-                                $categoriesQuery = "SELECT c.*, COUNT(i.item_id) as item_count 
-                                                   FROM categories c 
-                                                   LEFT JOIN inventory_items i ON c.category_id = i.category_id 
-                                                   GROUP BY c.category_id 
-                                                   ORDER BY c.name";
-                                $categoriesResult = $conn->query($categoriesQuery);
+                                if ($adminFacultyId) {
+                                    $stmt = $conn->prepare("SELECT c.*, COUNT(i.item_id) as item_count 
+                                                           FROM categories c 
+                                                           LEFT JOIN inventory_items i ON c.category_id = i.category_id 
+                                                           LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                                                           WHERE i.item_id IS NULL OR f.faculty_id = ?
+                                                           GROUP BY c.category_id 
+                                                           ORDER BY c.name");
+                                    $stmt->bind_param('i', $adminFacultyId);
+                                    $stmt->execute();
+                                    $categoriesResult = $stmt->get_result();
+                                } else {
+                                    $categoriesResult = $conn->query("SELECT c.*, 0 as item_count FROM categories c ORDER BY c.name");
+                                }
                                 
                                 while ($category = $categoriesResult->fetch_assoc()) {
                                 ?>

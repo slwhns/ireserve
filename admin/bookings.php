@@ -26,10 +26,20 @@ $page     = max(1, (int)($_GET['page'] ?? 1));
 $perPage  = 7;
 $offset   = ($page - 1) * $perPage;
 
+// Get admin's faculty ID from session
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
 /* Build WHERE & params */
 $where  = [];
 $params = [];
 $types  = '';
+
+// Always filter by admin's faculty
+if ($adminFacultyId) {
+    $where[] = "f.faculty_id = ?";
+    $types   .= 'i';
+    $params[] = $adminFacultyId;
+}
 
 if ($search !== '') {
     // search in ref_code, user_name, item_name, item_code
@@ -53,6 +63,7 @@ $sqlCount = "
     SELECT COUNT(*) AS c
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
+    LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
     LEFT JOIN users u ON u.id = b.user_id
     $whereSql
 ";
@@ -72,6 +83,7 @@ $sqlList = "
         u.name AS user_name, u.matrics_number, u.phone_number
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
+    LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
     LEFT JOIN users u ON u.id = b.user_id
     $whereSql
     ORDER BY b.created_at DESC
@@ -94,13 +106,22 @@ $stmt->close();
 
 $pages = max(1, (int)ceil($total / $perPage));
 
-/* Get unique locations for filter */
+/* Get unique locations for filter - only for admin's faculty */
 $locations = [];
-$locStmt = $conn->query("SELECT DISTINCT location FROM inventory_items WHERE location IS NOT NULL AND location != '' ORDER BY location");
-if ($locStmt) {
-    while ($locRow = $locStmt->fetch_assoc()) {
-        $locations[] = $locRow['location'];
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("SELECT DISTINCT i.location FROM inventory_items i 
+                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                            WHERE f.faculty_id = ? AND i.location IS NOT NULL AND i.location != '' 
+                            ORDER BY i.location");
+    $stmt->bind_param('i', $adminFacultyId);
+    $stmt->execute();
+    $locStmt = $stmt->get_result();
+    if ($locStmt) {
+        while ($locRow = $locStmt->fetch_assoc()) {
+            $locations[] = $locRow['location'];
+        }
     }
+    $stmt->close();
 }
 
 /* Helper to keep filters in links */

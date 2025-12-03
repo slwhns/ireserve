@@ -26,6 +26,30 @@ if (empty($_POST['item_id']) || empty($_POST['name']) || empty($_POST['category_
 
 // Sanitize and prepare data
 $item_id = (int)$_POST['item_id'];
+$page = isset($_POST['page']) && is_numeric($_POST['page']) ? (int)$_POST['page'] : 1;
+
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
+// Verify item belongs to admin's faculty before allowing update
+if ($adminFacultyId) {
+    $checkStmt = $conn->prepare("SELECT i.item_id FROM inventory_items i 
+                                 JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                                 WHERE i.item_id = ? AND f.faculty_id = ?");
+    $checkStmt->bind_param("ii", $item_id, $adminFacultyId);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    if ($checkResult->num_rows === 0) {
+        $checkStmt->close();
+        header("Location: inventory.php?error=unauthorized");
+        exit();
+    }
+    $checkStmt->close();
+} else {
+    header("Location: inventory.php?error=unauthorized");
+    exit();
+}
+
 $name = trim($_POST['name']);
 $category_id = (int)$_POST['category_id'];
 $sku = trim($_POST['sku']);
@@ -127,7 +151,11 @@ if ($stmt) {
     if ($stmt->execute()) {
         $stmt->close();
         $conn->close();
-        header("Location: inventory.php?success=updated");
+        
+        // Get page parameter from POST
+        $page = isset($_POST['page']) && is_numeric($_POST['page']) ? (int)$_POST['page'] : 1;
+        
+        header("Location: inventory.php?success=updated&page=$page");
         exit();
     } else {
         $stmt->close();

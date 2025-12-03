@@ -18,6 +18,13 @@
             </a>
         </li>
         
+        <li class="<?php echo ($currentPage == 'admin') ? 'hovered' : ''; ?>">
+            <a href="/ireserve/admin/admin_list.php">
+                <span class="icon"><i class="bi bi-person-badge"></i></span>
+                <span class="title">Admin</span>
+            </a>
+        </li>
+        
         <li class="<?php echo ($currentPage == 'users') ? 'hovered' : ''; ?>">
             <a href="/ireserve/admin/userList.php">
                 <span class="icon"><i class="bi bi-people"></i></span>

@@ -29,8 +29,8 @@ $email = trim($_POST['email']);
 $role = trim($_POST['role']);
 $phone_number = isset($_POST['phone_number']) ? trim($_POST['phone_number']) : null;
 $matrics_number = isset($_POST['matrics_number']) ? trim($_POST['matrics_number']) : null;
-$course = isset($_POST['course']) ? trim($_POST['course']) : null;
-$faculty = isset($_POST['faculty']) ? trim($_POST['faculty']) : null;
+$program = isset($_POST['program']) ? trim($_POST['program']) : null;
+$faculty_id = isset($_POST['faculty_id']) && !empty($_POST['faculty_id']) ? (int)$_POST['faculty_id'] : null;
 $current_picture = isset($_POST['current_picture']) ? trim($_POST['current_picture']) : null;
 $new_password = $_POST['new_password'] ?? '';
 $confirm_password = $_POST['confirm_password'] ?? '';
@@ -129,14 +129,14 @@ if ($new_password !== '') {
 }
 
 // Update user with optional fields
-$sql = "UPDATE users SET name = ?, email = ?, role = ?, phone_number = ?, matrics_number = ?, course = ?, faculty = ?, picture_url = ? $password_sql WHERE id = ?";
+$sql = "UPDATE users SET name = ?, email = ?, role = ?, phone_number = ?, matrics_number = ?, program = ?, faculty_id = ?, picture_url = ? $password_sql WHERE id = ?";
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     if ($password_sql !== '') {
-        $stmt->bind_param("sssssssssi", $name, $email, $role, $phone_number, $matrics_number, $course, $faculty, $picture_url, $password_hash, $user_id);
+        $stmt->bind_param("ssssssisi", $name, $email, $role, $phone_number, $matrics_number, $program, $faculty_id, $picture_url, $password_hash, $user_id);
     } else {
-        $stmt->bind_param("ssssssssi", $name, $email, $role, $phone_number, $matrics_number, $course, $faculty, $picture_url, $user_id);
+        $stmt->bind_param("ssssssisi", $name, $email, $role, $phone_number, $matrics_number, $program, $faculty_id, $picture_url, $user_id);
     }
     
     if ($stmt->execute()) {

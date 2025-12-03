@@ -12,6 +12,9 @@ if (empty($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
+// Get admin's faculty ID for filtering
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
 if ($q === '' || mb_strlen($q) < 1) {
     echo json_encode(['ok' => true, 'results' => [], 'total' => 0]);
@@ -21,18 +24,26 @@ if ($q === '' || mb_strlen($q) < 1) {
 // Prepare wildcard for LIKE searches
 $like = '%' . $q . '%';
 
-// Use prepared statement to avoid SQL injection
-$sql = "SELECT item_id, name, sku, quantity, location, status, image_url FROM inventory_items
-        WHERE name LIKE ? OR sku LIKE ? OR location LIKE ?
-        ORDER BY item_id DESC LIMIT 50";
-
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-    // Return a helpful error flag; callers will show a generic message.
-    echo json_encode(['ok' => false, 'error' => 'db_error_prepare']);
+// Use prepared statement with faculty filter
+if ($adminFacultyId) {
+    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.location, i.status, i.image_url 
+            FROM inventory_items i
+            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+            WHERE (i.name LIKE ? OR i.sku LIKE ? OR i.location LIKE ?) 
+            AND f.faculty_id = ?
+            ORDER BY i.item_id DESC LIMIT 50";
+    
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        echo json_encode(['ok' => false, 'error' => 'db_error_prepare']);
+        exit;
+    }
+    $stmt->bind_param('sssi', $like, $like, $like, $adminFacultyId);
+} else {
+    // No faculty access - return empty results
+    echo json_encode(['ok' => true, 'results' => [], 'total' => 0]);
     exit;
 }
-$stmt->bind_param('sss', $like, $like, $like);
 $stmt->execute();
 $res = $stmt->get_result();
 $results = [];

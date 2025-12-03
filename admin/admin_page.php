@@ -18,6 +18,9 @@ $totalUsers = 0;
 $pendingApprovals = 0;
 $totalAdmins = 0;
 
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
 // Get total users count
 $stmt = $conn->prepare("SELECT COUNT(*) as count FROM users WHERE role = 'user'");
 if ($stmt) {
@@ -29,8 +32,16 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get pending approvals count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'");
+// Get pending approvals count - filter by faculty
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings b 
+                            JOIN inventory_items i ON i.item_id = b.item_id 
+                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                            WHERE b.status = 'pending' AND f.faculty_id = ?");
+    $stmt->bind_param('i', $adminFacultyId);
+} else {
+    $stmt = $conn->prepare("SELECT 0 as count");
+}
 if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();
@@ -40,8 +51,16 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get total admins count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings WHERE status IN ('approved', 'returned')");
+// Get total admins count - filter by faculty
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings b 
+                            JOIN inventory_items i ON i.item_id = b.item_id 
+                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                            WHERE b.status IN ('approved', 'returned') AND f.faculty_id = ?");
+    $stmt->bind_param('i', $adminFacultyId);
+} else {
+    $stmt = $conn->prepare("SELECT 0 as count");
+}
 if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();
@@ -51,19 +70,26 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get recent bookings (last 7)
+// Get recent bookings (last 7) - filter by faculty
 $recentBookings = [];
-$stmt = $conn->prepare("
-    SELECT 
-        b.ref_code, b.start_at, b.status,
-        u.name AS user_name,
-        i.name AS item_name
-    FROM bookings b
-    LEFT JOIN users u ON u.id = b.user_id
-    LEFT JOIN inventory_items i ON i.item_id = b.item_id
-    ORDER BY b.created_at DESC
-    LIMIT 7
-");
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("
+        SELECT 
+            b.ref_code, b.start_at, b.status,
+            u.name AS user_name,
+            i.name AS item_name
+        FROM bookings b
+        LEFT JOIN users u ON u.id = b.user_id
+        LEFT JOIN inventory_items i ON i.item_id = b.item_id
+        LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+        WHERE f.faculty_id = ?
+        ORDER BY b.created_at DESC
+        LIMIT 7
+    ");
+    $stmt->bind_param('i', $adminFacultyId);
+} else {
+    $stmt = null;
+}
 if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();
@@ -73,19 +99,25 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get top booked items
+// Get top booked items - filter by faculty
 $topItems = [];
-$stmt = $conn->prepare("
-    SELECT 
-        i.name AS item_name,
-        COUNT(*) as booking_count
-    FROM bookings b
-    LEFT JOIN inventory_items i ON i.item_id = b.item_id
-    WHERE i.name IS NOT NULL
-    GROUP BY b.item_id, i.name
-    ORDER BY booking_count DESC
-    LIMIT 5
-");
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("
+        SELECT 
+            i.name AS item_name,
+            COUNT(*) as booking_count
+        FROM bookings b
+        LEFT JOIN inventory_items i ON i.item_id = b.item_id
+        LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+        WHERE i.name IS NOT NULL AND f.faculty_id = ?
+        GROUP BY b.item_id, i.name
+        ORDER BY booking_count DESC
+        LIMIT 5
+    ");
+    $stmt->bind_param('i', $adminFacultyId);
+} else {
+    $stmt = null;
+}
 if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();

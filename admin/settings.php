@@ -18,6 +18,7 @@ $adminId = $_SESSION['user_id'] ?? 0;
 $adminName = $_SESSION['name'] ?? '';
 $adminEmail = $_SESSION['email'] ?? '';
 $adminPicture = $_SESSION['picture_url'] ?? '';
+$adminPhoneNumber = $_SESSION['phone_number'] ?? '';
 
 // Fetch categories for management
 $categories = [];
@@ -36,7 +37,7 @@ if ($catResult) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | iReserve</title>
     <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-    <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=1">
+    <link rel="stylesheet" href="/ireserve/assets/css/settings.css?v=2">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
@@ -60,8 +61,13 @@ if ($catResult) {
                 </div>
 
                 <?php
-                // Display success messages
+                // Don't display inline alerts - we'll show modal instead
+                $hasMessage = false;
+                $messageText = '';
+                $messageType = '';
+                
                 if (isset($_GET['success'])) {
+                    $hasMessage = true;
                     $success = $_GET['success'];
                     $successMessages = [
                         'profile_updated' => 'Profile updated successfully!',
@@ -70,12 +76,12 @@ if ($catResult) {
                         'category_updated' => 'Category updated successfully!',
                         'category_deleted' => 'Category deleted successfully!'
                     ];
-                    $message = $successMessages[$success] ?? 'Operation completed successfully.';
-                    echo '<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' . $message . '</div>';
+                    $messageText = $successMessages[$success] ?? 'Operation completed successfully.';
+                    $messageType = 'success';
                 }
 
-                // Display error messages
                 if (isset($_GET['error'])) {
+                    $hasMessage = true;
                     $error = $_GET['error'];
                     $errorMessages = [
                         'invalid_data' => 'Invalid data provided.',
@@ -87,8 +93,8 @@ if ($catResult) {
                         'password_mismatch' => 'New passwords do not match.',
                         'weak_password' => 'Password must be at least 6 characters.'
                     ];
-                    $message = $errorMessages[$error] ?? 'An error occurred. Please try again.';
-                    echo '<div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> ' . $message . '</div>';
+                    $messageText = $errorMessages[$error] ?? 'An error occurred. Please try again.';
+                    $messageType = 'error';
                 }
                 ?>
 
@@ -110,6 +116,11 @@ if ($catResult) {
                                 <div class="form-group">
                                     <label for="email">Email Address</label>
                                     <input type="email" id="email" name="email" value="<?= h($adminEmail) ?>" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone_number">Office No.</label>
+                                    <input type="text" id="phone_number" name="phone_number" value="<?= h($adminPhoneNumber) ?>" required>
                                 </div>
 
                                 <div class="form-group">
@@ -258,6 +269,23 @@ if ($catResult) {
         </div>
     </div>
 
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="modal" style="display: none;">
+        <div class="modal-content modal-alert">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="bi bi-info-circle"></i> Notification</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer" style="padding: 15px 30px; text-align: right; border-top: 1px solid #dee2e6;">
+                <button onclick="closeNotificationModal()" class="btn btn-primary" style="padding: 10px 24px;">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Category Modal -->
     <div id="addCategoryModal" class="modal">
         <div class="modal-content">
@@ -307,6 +335,63 @@ if ($catResult) {
 
     <script src="/ireserve/assets/js/admin.js?v=8"></script>
     <script>
+        // Show notification modal if there's a message
+        <?php if ($hasMessage): ?>
+        window.addEventListener('DOMContentLoaded', function() {
+            showNotificationModal('<?php echo addslashes($messageText); ?>', '<?php echo $messageType; ?>');
+        });
+        <?php endif; ?>
+
+        function showNotificationModal(message, type) {
+            const modal = document.getElementById('notificationModal');
+            const content = modal.querySelector('.modal-content');
+            const title = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            
+            // Reset classes
+            content.classList.remove('success', 'error');
+            
+            // Set type-specific styling
+            if (type === 'success') {
+                content.classList.add('success');
+                title.innerHTML = '<i class="bi bi-check-circle"></i> Success';
+            } else if (type === 'error') {
+                content.classList.add('error');
+                title.innerHTML = '<i class="bi bi-exclamation-circle"></i> Error';
+            }
+            
+            messageEl.textContent = message;
+            modal.style.display = 'flex';
+            
+            // Remove URL parameters after showing modal
+            if (window.history.replaceState) {
+                const url = window.location.pathname;
+                window.history.replaceState({}, document.title, url);
+            }
+        }
+
+        function closeNotificationModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal on background click
+        window.onclick = function(event) {
+            const notifModal = document.getElementById('notificationModal');
+            if (event.target === notifModal) {
+                closeNotificationModal();
+            }
+            // Keep existing modal functionality
+            const addModal = document.getElementById('addCategoryModal');
+            if (event.target === addModal) {
+                closeAddCategoryModal();
+            }
+            const editModal = document.getElementById('editCategoryModal');
+            if (event.target === editModal) {
+                closeEditCategoryModal();
+            }
+        }
+
         // Profile picture preview
         document.getElementById('picture')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -341,10 +426,10 @@ if ($catResult) {
 
         function deleteCategory(id, name, itemCount) {
             if (itemCount > 0) {
-                alert('Cannot delete "' + name + '" category because it has ' + itemCount + ' item(s). Please reassign or delete the items first.');
+                showNotificationModal('Cannot delete "' + name + '" category because it has ' + itemCount + ' item(s). Please reassign or delete the items first.', 'error');
                 return;
             }
-            if (confirm('Are you sure you want to delete the "' + name + '" category?')) {
+            if (confirm('Are you sure you want to delete the category "' + name + '"?')) {
                 window.location.href = '/ireserve/admin/settings_update.php?action=delete_category&category_id=' + id;
             }
         }

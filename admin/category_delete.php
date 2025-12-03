@@ -18,6 +18,9 @@ if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
 
 $category_id = (int)$_GET['id'];
 
+// Get admin's faculty ID
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
 // Ensure category exists
 $existsSql = 'SELECT name FROM categories WHERE category_id = ?';
 if (!$existsStmt = $conn->prepare($existsSql)) {
@@ -34,13 +37,22 @@ if ($existsRes->num_rows === 0) {
 }
 $existsStmt->close();
 
-// Check if any items use this category
-$countSql = 'SELECT COUNT(*) AS cnt FROM inventory_items WHERE category_id = ?';
-if (!$countStmt = $conn->prepare($countSql)) {
+// Check if any items in admin's faculty use this category
+if ($adminFacultyId) {
+    $countSql = "SELECT COUNT(*) AS cnt FROM inventory_items i 
+                 JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
+                 WHERE i.category_id = ? AND f.faculty_id = ?";
+    $countStmt = $conn->prepare($countSql);
+    $countStmt->bind_param('ii', $category_id, $adminFacultyId);
+} else {
+    $countSql = 'SELECT COUNT(*) AS cnt FROM inventory_items WHERE category_id = ?';
+    $countStmt = $conn->prepare($countSql);
+    $countStmt->bind_param('i', $category_id);
+}
+if (!$countStmt) {
     header('Location: /ireserve/admin/inventory.php?error=database_error');
     exit();
 }
-$countStmt->bind_param('i', $category_id);
 $countStmt->execute();
 $countRes = $countStmt->get_result();
 $row = $countRes->fetch_assoc();
