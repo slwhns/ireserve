@@ -12,8 +12,12 @@ if (!isset($_SESSION['email'])) {
 $user_id = $_SESSION['user_id'];
 $user_email = $_SESSION['email'];
 
-// Fetch user details
-$stmt = $conn->prepare("SELECT name, email, matrics_number, phone_number, program, faculty, picture_url, telegram_chat_id FROM users WHERE id = ?");
+// Fetch user details with faculty name
+$stmt = $conn->prepare("SELECT u.name, u.email, u.matrics_number, u.phone_number, u.program, u.faculty_id, u.picture_url, u.telegram_chat_id, 
+                               f.faculty_name, f.faculty_code 
+                        FROM users u 
+                        LEFT JOIN faculties f ON u.faculty_id = f.faculty_id 
+                        WHERE u.id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -24,7 +28,8 @@ $user_name = $user['name'];
 $user_matrics = $user['matrics_number'] ?? '';
 $user_phone = $user['phone_number'] ?? '';
 $user_program = $user['program'] ?? '';
-$user_faculty = $user['faculty'] ?? '';
+$user_faculty_id = $user['faculty_id'] ?? '';
+$user_faculty_name = !empty($user['faculty_name']) ? $user['faculty_name'] . ' (' . $user['faculty_code'] . ')' : '';
 $user_telegram = $user['telegram_chat_id'] ?? '';
 $user_picture = !empty($user['picture_url']) ? $user['picture_url'] : '/ireserve/assets/images/user.png';
 
@@ -125,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $matrics_number = trim($_POST['matrics_number']);
         $phone_number = trim($_POST['phone_number']);
         $program = trim($_POST['program']);
-        $faculty = trim($_POST['faculty']);
+        $faculty_id = trim($_POST['faculty_id']);
         $email = trim($_POST['email']);
         
         if (!empty($name) && !empty($email)) {
@@ -141,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Get Telegram Chat ID from POST
                 $telegram_chat_id = trim($_POST['telegram_chat_id'] ?? '');
                 
-                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, program = ?, faculty = ?, email = ?, telegram_chat_id = ? WHERE id = ?");
-                $update_stmt->bind_param('sssssssi', $name, $matrics_number, $phone_number, $program, $faculty, $email, $telegram_chat_id, $user_id);
+                $update_stmt = $conn->prepare("UPDATE users SET name = ?, matrics_number = ?, phone_number = ?, program = ?, faculty_id = ?, email = ?, telegram_chat_id = ? WHERE id = ?");
+                $update_stmt->bind_param('sssssssi', $name, $matrics_number, $phone_number, $program, $faculty_id, $email, $telegram_chat_id, $user_id);
                 
                 if ($update_stmt->execute()) {
                     $_SESSION['name'] = $name;
@@ -266,15 +271,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-group">
                         <label for="matrics_number">Matrics Number</label>
-                        <input type="text" id="matrics_number" name="matrics_number" value="<?php echo htmlspecialchars($user_matrics); ?>">
+                        <input type="text" id="matrics_number" name="matrics_number" value="<?php echo htmlspecialchars($user_matrics); ?>" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <small>Matrics number cannot be changed. Contact admin if needed.</small>
                     </div>
                     <div class="form-group">
                         <label for="program">Program</label>
-                        <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($user_program); ?>">
+                        <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($user_program); ?>" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <small>Program assignment cannot be changed. Contact admin if needed.</small>
                     </div>
                     <div class="form-group">
-                        <label for="faculty">Faculty</label>
-                        <input type="text" id="faculty" name="faculty" value="<?php echo htmlspecialchars($user_faculty); ?>">
+                        <label for="faculty_name">Faculty</label>
+                        <input type="text" id="faculty_name" name="faculty_name" value="<?php echo htmlspecialchars($user_faculty_name); ?>" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <input type="hidden" name="faculty_id" value="<?php echo htmlspecialchars($user_faculty_id); ?>">
+                        <small>Faculty assignment cannot be changed. Contact admin if needed.</small>
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
@@ -360,44 +369,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const helpContent = `
                 <div style="text-align: left; max-height: 400px; overflow-y: auto;">
                     <h3 style="margin: 0 0 20px 0; color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
-                        <i class="ri-telegram-fill"></i> How to Get Your Telegram Chat ID
+                        <i class="ri-telegram-fill"></i> How to Setup Telegram Notifications
                     </h3>
                     
                     <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
                         <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
                         <div>
-                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Open Telegram</h4>
-                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Open your Telegram app on your phone or computer</p>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Get Your Chat ID</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Open Telegram, search for <code style="background: #f4f4f4; padding: 2px 8px; border-radius: 4px; font-family: monospace; color: var(--primary-color);">@userinfobot</code>, click START, and copy your Chat ID</p>
                         </div>
                     </div>
 
                     <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
                         <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
                         <div>
-                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Search for @userinfobot</h4>
-                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">In the search bar, type <code style="background: #f4f4f4; padding: 2px 8px; border-radius: 4px; font-family: monospace; color: var(--primary-color);">@userinfobot</code> and open the bot</p>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start;">
-                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
-                        <div>
-                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Start the bot</h4>
-                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Click "START" or send any message to the bot</p>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Save Chat ID Here</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Enter your Chat ID in the field above and click "Save Changes"</p>
                         </div>
                     </div>
 
                     <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-start;">
-                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">4</div>
+                        <div style="background: var(--primary-color); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
                         <div>
-                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">Copy your Chat ID</h4>
-                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">The bot will reply with your Chat ID (a number like 123456789). Copy this number and paste it in the field above.</p>
+                            <h4 style="margin: 0 0 5px 0; color: var(--text-dark);">⚠️ IMPORTANT: Start the iReserve Bot</h4>
+                            <p style="margin: 0; color: var(--text-light); line-height: 1.6;">Search for <code style="background: #f4f4f4; padding: 2px 8px; border-radius: 4px; font-family: monospace; color: var(--primary-color);">@ireserve_upsi_bot</code> in Telegram and click <strong>START</strong>. This is required to receive notifications!</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; color: #856404; display: flex; align-items: flex-start; gap: 10px; font-size: 0.95rem; margin-bottom: 15px;">
+                        <i class="ri-alert-line" style="flex-shrink: 0; margin-top: 2px;"></i>
+                        <div>
+                            <strong>Critical Step:</strong> You won't receive any notifications until you start a chat with <code style="background: #f4f4f4; padding: 2px 6px; border-radius: 4px;">@ireserve_upsi_bot</code>. This is a Telegram security requirement.
                         </div>
                     </div>
 
                     <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; color: #1976d2; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
                         <i class="ri-information-line"></i>
-                        <span>You'll receive notifications about your booking status via Telegram once configured!</span>
+                        <span>Once configured, you'll receive instant notifications when your bookings are approved, rejected, ready for collection, or returned!</span>
                     </div>
                 </div>
             `;

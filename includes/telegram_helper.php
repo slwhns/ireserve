@@ -35,7 +35,7 @@ function sendTelegramNotification($chatId, $userName, $status, $bookingData) {
  * @return bool Success status
  */
 function sendTelegramMessage($chatId, $message) {
-    $botToken = TELEGRAM_BOT_TOKEN;
+    $botToken = "8480029911:AAGIpbrkbEZQAsBmmQKW83iQzdKfCJgpiGY";
     $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
     
     $data = [
