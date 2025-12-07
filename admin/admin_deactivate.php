@@ -174,7 +174,7 @@ if ($stmt->execute()) {
         audit_log($admin['id'], 'deactivate_admin', $target_id, $details);
         
         $response['success'] = true;
-        $response['message'] = 'Administrator "' . $target_user['name'] . '" has been successfully deactivated.';
+        $response['message'] = "Administrator \"{$target_user['name']}\" has been successfully deactivated.";
         $response['redirect'] = 'admin_list.php?success=' . urlencode($response['message']);
     } else {
         $response['message'] = 'No changes were made. The administrator may have already been deactivated.';

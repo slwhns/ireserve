@@ -20,6 +20,7 @@ $currentPage = 'inventory';
 
         <!-- ============ Navigation Bar ============ -->
         <div class="container">
+            <!-- ============ Sidebar ============ -->
             <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
             <!-- ============ Main Content ============ -->

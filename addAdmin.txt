@@ -1,0 +1,11 @@
+INSERT INTO users (name, email, password, phone_number, role, faculty_id, is_active, created_at) 
+VALUES (
+  'Test Admin', 
+  'testadmin@example.com', 
+  '$2y$10$dLU4SGXchDmvZe4/5DC4dePqjCfKYuf0uD8tUD2zFMWEL3lZ42D7.', {pass:test}
+  '0123456789', 
+  'admin', 
+  11, 
+  1, 
+  NOW()
+);

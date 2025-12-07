@@ -253,12 +253,12 @@ $csrf_token = generate_csrf_token();
                 
                 if (isset($_GET['success'])) {
                     $hasMessage = true;
-                    $messageText = htmlspecialchars($_GET['success']);
+                    $messageText = urldecode($_GET['success']);
                     $messageType = 'success';
                 }
                 if (isset($_GET['error'])) {
                     $hasMessage = true;
-                    $messageText = htmlspecialchars($_GET['error']);
+                    $messageText = urldecode($_GET['error']);
                     $messageType = 'error';
                 }
                 ?>

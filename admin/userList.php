@@ -1,4 +1,6 @@
 <?php
+session_name('ireserve_admin');
+session_start();
 
 require_once __DIR__ . '/../config.php'; // e.g. sets $conn = new mysqli(...);
 
@@ -60,8 +62,8 @@ if ($stmtU) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin & User List | iReserve</title>
-        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
-        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=9">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=11">
+        <link rel="stylesheet" href="/ireserve/assets/css/admin_userList.css?v=10">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
     <body>
