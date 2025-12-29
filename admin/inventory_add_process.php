@@ -22,9 +22,7 @@ $sku         = trim($_POST['sku']);
 $description = trim($_POST['description'] ?? '');
 $quantity    = (int)$_POST['quantity'];
 $status      = $_POST['status'];
-$location    = trim($_POST['location'] ?? '');
-$latitude    = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
-$longitude   = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
+$faculty_id  = !empty($_POST['faculty_id']) ? (int)$_POST['faculty_id'] : null;
 $created_by  = $_SESSION['user_id'] ?? null;
 $image_url   = null;
 
@@ -78,27 +76,24 @@ if (!empty($_FILES['image']['name'])) {
 }
 
 // Use prepared statement to prevent SQL injection
-$sql = "INSERT INTO inventory_items (name, category_id, sku, description, quantity, status, location, latitude, longitude, image_url, created_by) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO inventory_items (name, category_id, sku, description, quantity, status, faculty_id, image_url, created_by) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sississddsi",
-        $name,
-        $category_id,
-        $sku,
-        $description,
-        $quantity,
-        $status,
-        $location,
-        $latitude,
-        $longitude,
-        $image_url,
-        $created_by
-    );
-
+    "sissisisi",
+    $name,
+    $category_id,
+    $sku,
+    $description,
+    $quantity,
+    $status,
+    $faculty_id,
+    $image_url,
+    $created_by
+);
     
     if ($stmt->execute()) {
         $stmt->close();

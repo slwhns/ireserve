@@ -38,9 +38,12 @@ if ($item_id <= 0) {
 }
 
 // Fetch item details
-$stmt = $conn->prepare("SELECT i.*, c.name AS category_name
+$stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
+                        CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location,
+                        f.latitude, f.longitude
                         FROM inventory_items i
                         LEFT JOIN categories c ON i.category_id = c.category_id
+                        LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
                         WHERE i.item_id = ?");
 $stmt->bind_param('i', $item_id);
 $stmt->execute();

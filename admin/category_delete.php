@@ -40,8 +40,7 @@ $existsStmt->close();
 // Check if any items in admin's faculty use this category
 if ($adminFacultyId) {
     $countSql = "SELECT COUNT(*) AS cnt FROM inventory_items i 
-                 JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                 WHERE i.category_id = ? AND f.faculty_id = ?";
+                 WHERE i.category_id = ? AND i.faculty_id = ?";
     $countStmt = $conn->prepare($countSql);
     $countStmt->bind_param('ii', $category_id, $adminFacultyId);
 } else {

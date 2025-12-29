@@ -104,50 +104,35 @@ require_once 'includes/sidebar.php';
                             </div>
 
                             <div class="form-group">
-                                <label for="location">
-                                    <i class="bi bi-geo-alt"></i> Location <span class="required">*</span>
+                                <label for="faculty_id">
+                                    <i class="bi bi-geo-alt"></i> Faculty Location <span class="required">*</span>
                                 </label>
-                                <select id="location" name="location">
+                                <select id="faculty_id" name="faculty_id" required onchange="updateMapFromFaculty(this.value)">
                                     <option value="">-- Select Faculty Location --</option>
                                     <?php
-                                    $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code FROM faculties ORDER BY faculty_name");
+                                    $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code, latitude, longitude FROM faculties ORDER BY faculty_name");
                                     while ($faculty = $faculties->fetch_assoc()) {
                                         $displayName = $faculty['faculty_name'];
                                         if (!empty($faculty['faculty_code'])) {
                                             $displayName .= ' (' . $faculty['faculty_code'] . ')';
                                         }
-                                        echo "<option value='" . htmlspecialchars($displayName) . "'>" . htmlspecialchars($displayName) . "</option>";
+                                        $lat = $faculty['latitude'] ?? '';
+                                        $lng = $faculty['longitude'] ?? '';
+                                        echo "<option value='" . (int)$faculty['faculty_id'] . "' data-lat='" . htmlspecialchars($lat) . "' data-lng='" . htmlspecialchars($lng) . "'>" . htmlspecialchars($displayName) . "</option>";
                                     }
                                     ?>
                                 </select>
-                                <small class="form-hint">Faculty where the item is located</small>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="latitude">
-                                    <i class="bi bi-compass"></i> Latitude
-                                </label>
-                                <input type="text" id="latitude" name="latitude" placeholder="e.g., 6.1167" step="any">
-                                <small class="form-hint">Click on map to set coordinates</small>
-                            </div>
-                            <div class="form-group">
-                                <label for="longitude">
-                                    <i class="bi bi-compass"></i> Longitude
-                                </label>
-                                <input type="text" id="longitude" name="longitude" placeholder="e.g., 102.2833" step="any">
-                                <small class="form-hint">Click on map to set coordinates</small>
+                                <small class="form-hint">Select faculty</small>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group full-width">
                                 <label>
-                                    <i class="bi bi-map"></i> Set Location on Map
+                                    <i class="bi bi-map"></i> Faculty Location
                                 </label>
                                 <div id="locationMap" style="width: 100%; height: 400px; border-radius: 8px; border: 1px solid #ddd;"></div>
-                                <small class="form-hint">Click anywhere on the map to set the item's location</small>
+                                <small class="form-hint">Map will automatically show selected faculty location</small>
                             </div>
                         </div>
 
@@ -201,55 +186,58 @@ require_once 'includes/sidebar.php';
         const defaultLocation = { lat: 3.685515, lng: 101.524744};
         
         map = new google.maps.Map(document.getElementById('locationMap'), {
-            zoom: 13,
+            zoom: 15,
             center: defaultLocation,
             mapTypeControl: true,
-            streetViewControl: true
+            streetViewControl: true,
+            gestureHandling: 'greedy'
         });
         
-        // Add click listener to map
-        map.addListener('click', (event) => {
-            placeMarker(event.latLng);
-        });
-        
-        // Check if there are existing coordinates
-        const latInput = document.getElementById('latitude');
-        const lngInput = document.getElementById('longitude');
-        
-        if (latInput.value && lngInput.value) {
-            const existingLocation = {
-                lat: parseFloat(latInput.value),
-                lng: parseFloat(lngInput.value)
-            };
-            map.setCenter(existingLocation);
-            placeMarker(new google.maps.LatLng(existingLocation.lat, existingLocation.lng));
-        }
+        // Create info message
+        const infoDiv = document.createElement('div');
+        infoDiv.style.cssText = 'background: white; padding: 10px 15px; margin: 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 0.9rem; color: #666;';
+        infoDiv.innerHTML = '<i class="bi bi-info-circle"></i> Select a faculty location from the dropdown above';
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(infoDiv);
     }
     
-    function placeMarker(location) {
-        if (marker) {
-            marker.setPosition(location);
-        } else {
-            marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                draggable: true,
-                animation: google.maps.Animation.DROP
-            });
+    function updateMapFromFaculty(facultyName) {
+        const select = document.getElementById('location');
+        const selectedOption = select.options[select.selectedIndex];
+        
+        const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+        const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+        
+        if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+            const location = { lat: lat, lng: lng };
             
-            // Update coordinates when marker is dragged
-            marker.addListener('dragend', () => {
-                updateCoordinates(marker.getPosition());
-            });
+            // Update coordinate inputs
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            
+            // Place marker and center map
+            if (marker) {
+                marker.setPosition(location);
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    title: facultyName
+                });
+            }
+            
+            map.setCenter(location);
+            map.setZoom(17);
+        } else {
+            // Clear if no coordinates
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            if (marker) {
+                marker.setMap(null);
+                marker = null;
+            }
+            alert('This faculty does not have coordinates set in the database.');
         }
-        
-        updateCoordinates(location);
-        map.panTo(location);
-    }
-    
-    function updateCoordinates(location) {
-        document.getElementById('latitude').value = location.lat().toFixed(6);
-        document.getElementById('longitude').value = location.lng().toFixed(6);
     }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEWZ4A9Tzq8j7Ud6r4tHhoHSLMqJbPonY&callback=initMap"></script>

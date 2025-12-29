@@ -21,7 +21,6 @@ function badge($status){
 
 $search   = trim($_GET['q'] ?? '');
 $status   = trim($_GET['status'] ?? '');
-$location = trim($_GET['location'] ?? '');
 $page     = max(1, (int)($_GET['page'] ?? 1));
 $perPage  = 7;
 $offset   = ($page - 1) * $perPage;
@@ -51,11 +50,6 @@ if ($status !== '') {
     $types   .= 's';
     $params[] = $status;
 }
-if ($location !== '') {
-    $where[] = "i.location = ?";
-    $types   .= 's';
-    $params[] = $location;
-}
 $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
 /* Count total */
@@ -63,7 +57,7 @@ $sqlCount = "
     SELECT COUNT(*) AS c
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
-    LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+    LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
     LEFT JOIN users u ON u.id = b.user_id
     $whereSql
 ";
@@ -79,11 +73,11 @@ $stmt->close();
 $sqlList = "
     SELECT
         b.ref_code, b.qty, b.start_at, b.end_at, b.status, b.purpose, b.admin_note, b.created_at,
-        i.name AS item_name, i.sku AS item_code, i.location AS item_location,
+        i.name AS item_name, i.sku AS item_code, CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS item_location,
         u.name AS user_name, u.matrics_number, u.phone_number
     FROM bookings b
     LEFT JOIN inventory_items i ON i.item_id = b.item_id
-    LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
+    LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
     LEFT JOIN users u ON u.id = b.user_id
     $whereSql
     ORDER BY b.created_at DESC
@@ -106,26 +100,8 @@ $stmt->close();
 
 $pages = max(1, (int)ceil($total / $perPage));
 
-/* Get unique locations for filter - only for admin's faculty */
-$locations = [];
-if ($adminFacultyId) {
-    $stmt = $conn->prepare("SELECT DISTINCT i.location FROM inventory_items i 
-                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                            WHERE f.faculty_id = ? AND i.location IS NOT NULL AND i.location != '' 
-                            ORDER BY i.location");
-    $stmt->bind_param('i', $adminFacultyId);
-    $stmt->execute();
-    $locStmt = $stmt->get_result();
-    if ($locStmt) {
-        while ($locRow = $locStmt->fetch_assoc()) {
-            $locations[] = $locRow['location'];
-        }
-    }
-    $stmt->close();
-}
-
 /* Helper to keep filters in links */
-$buildLink = function(int $p) use ($search, $status, $location){
+$buildLink = function(int $p) use ($search, $status){
     return 'bookings.php?' . http_build_query(array_filter(['q'=>$search,'status'=>$status,'location'=>$location,'page'=>$p]));
 };
 
@@ -174,14 +150,8 @@ $showEnd   = $total > 0 ? min($offset + count($rows), $total) : 0;
                 <option value="<?=$s?>" <?=$status===$s?'selected':''?>><?=ucfirst($s)?></option>
             <?php endforeach; ?>
         </select>
-        <select name="location">
-            <option value="">All locations</option>
-            <?php foreach ($locations as $loc): ?>
-                <option value="<?=h($loc)?>" <?=$location===$loc?'selected':''?>><?=h($loc)?></option>
-            <?php endforeach; ?>
-        </select>
         <button class="btn" type="submit">Apply</button>
-        <?php if ($search!=='' || $status!=='' || $location!==''): ?>
+        <?php if ($search!=='' || $status!==''): ?>
             <a class="btn" style="background:#9aa6ff;text-decoration:none" href="bookings.php">Reset</a>
         <?php endif; ?>
     </form>

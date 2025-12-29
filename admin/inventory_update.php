@@ -34,8 +34,7 @@ $adminFacultyId = $_SESSION['faculty_id'] ?? null;
 // Verify item belongs to admin's faculty before allowing update
 if ($adminFacultyId) {
     $checkStmt = $conn->prepare("SELECT i.item_id FROM inventory_items i 
-                                 JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                                 WHERE i.item_id = ? AND f.faculty_id = ?");
+                                 WHERE i.item_id = ? AND i.faculty_id = ?");
     $checkStmt->bind_param("ii", $item_id, $adminFacultyId);
     $checkStmt->execute();
     $checkResult = $checkStmt->get_result();
@@ -56,7 +55,7 @@ $sku = trim($_POST['sku']);
 $description = trim($_POST['description']);
 $quantity = (int)$_POST['quantity'];
 $status = trim($_POST['status']);
-$location = trim($_POST['location']);
+$faculty_id = !empty($_POST['faculty_id']) ? (int)$_POST['faculty_id'] : null;
 $latitude = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
 $longitude = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
 $current_image = $_POST['current_image'];
@@ -123,7 +122,7 @@ $sql = "UPDATE inventory_items
             description = ?, 
             quantity = ?, 
             status = ?, 
-            location = ?,
+            faculty_id = ?,
             latitude = ?,
             longitude = ?,
             image_url = ?,
@@ -141,7 +140,7 @@ if ($stmt) {
         $description, 
         $quantity, 
         $status, 
-        $location,
+        $faculty_id,
         $latitude,
         $longitude,
         $image_url,

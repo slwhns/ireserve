@@ -36,8 +36,7 @@ if ($stmt) {
 if ($adminFacultyId) {
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings b 
                             JOIN inventory_items i ON i.item_id = b.item_id 
-                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                            WHERE b.status = 'pending' AND f.faculty_id = ?");
+                            WHERE b.status = 'pending' AND i.faculty_id = ?");
     $stmt->bind_param('i', $adminFacultyId);
 } else {
     $stmt = $conn->prepare("SELECT 0 as count");
@@ -51,12 +50,11 @@ if ($stmt) {
     $stmt->close();
 }
 
-// Get total admins count - filter by faculty
+// Get total bookings count - filter by faculty
 if ($adminFacultyId) {
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM bookings b 
                             JOIN inventory_items i ON i.item_id = b.item_id 
-                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                            WHERE b.status IN ('approved', 'returned') AND f.faculty_id = ?");
+                            WHERE b.status IN ('approved', 'returned') AND i.faculty_id = ?");
     $stmt->bind_param('i', $adminFacultyId);
 } else {
     $stmt = $conn->prepare("SELECT 0 as count");
@@ -81,8 +79,7 @@ if ($adminFacultyId) {
         FROM bookings b
         LEFT JOIN users u ON u.id = b.user_id
         LEFT JOIN inventory_items i ON i.item_id = b.item_id
-        LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
-        WHERE f.faculty_id = ?
+        WHERE i.faculty_id = ?
         ORDER BY b.created_at DESC
         LIMIT 7
     ");
@@ -108,8 +105,7 @@ if ($adminFacultyId) {
             COUNT(*) as booking_count
         FROM bookings b
         LEFT JOIN inventory_items i ON i.item_id = b.item_id
-        LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
-        WHERE i.name IS NOT NULL AND f.faculty_id = ?
+        WHERE i.name IS NOT NULL AND i.faculty_id = ?
         GROUP BY b.item_id, i.name
         ORDER BY booking_count DESC
         LIMIT 5

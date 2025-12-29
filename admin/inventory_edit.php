@@ -29,30 +29,29 @@ $adminFacultyId = $_SESSION['faculty_id'] ?? null;
 
 // Fetch item details and verify it belongs to admin's faculty
 if ($adminFacultyId) {
-    $sql = "SELECT i.* FROM inventory_items i 
-            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-            WHERE i.item_id = ? AND f.faculty_id = ?";
+    $sql = "SELECT i.*, f.faculty_name, f.faculty_code 
+            FROM inventory_items i 
+            JOIN faculties f ON i.faculty_id = f.faculty_id
+            WHERE i.item_id = ? AND i.faculty_id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $item_id, $adminFacultyId);
-} else {
-    header("Location: inventory.php?error=unauthorized");
-    exit();
-}
-
-if ($stmt) {
-    $stmt->bind_param("i", $item_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $item = $result->fetch_assoc();
+    if ($stmt) {
+        $stmt->bind_param("ii", $item_id, $adminFacultyId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $item = $result->fetch_assoc();
+        } else {
+            header("Location: inventory.php?error=item_not_found");
+            exit();
+        }
+        $stmt->close();
     } else {
-        header("Location: inventory.php?error=item_not_found");
+        header("Location: inventory.php?error=database_error");
         exit();
     }
-    $stmt->close();
 } else {
-    header("Location: inventory.php?error=database_error");
+    header("Location: inventory.php?error=unauthorized");
     exit();
 }
 ?>
@@ -148,51 +147,36 @@ if ($stmt) {
                     </div>
 
                     <div class="form-group">
-                        <label for="location">
-                            <i class="bi bi-geo-alt"></i> Location <span class="required">*</span>
+                        <label for="faculty_id">
+                            <i class="bi bi-geo-alt"></i> Faculty Location <span class="required">*</span>
                         </label>
-                        <select id="location" name="location">
+                        <select id="faculty_id" name="faculty_id" required onchange="updateMapFromFaculty(this.value)">
                             <option value="">-- Select Faculty Location --</option>
                             <?php
-                            $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code FROM faculties ORDER BY faculty_name");
+                            $faculties = $conn->query("SELECT faculty_id, faculty_name, faculty_code, latitude, longitude FROM faculties ORDER BY faculty_name");
                             while ($faculty = $faculties->fetch_assoc()) {
                                 $displayName = $faculty['faculty_name'];
                                 if (!empty($faculty['faculty_code'])) {
                                     $displayName .= ' (' . $faculty['faculty_code'] . ')';
                                 }
-                                $selected = ($item['location'] == $displayName) ? 'selected' : '';
-                                echo "<option value='" . htmlspecialchars($displayName) . "' $selected>" . htmlspecialchars($displayName) . "</option>";
+                                $selected = ($item['faculty_id'] == $faculty['faculty_id']) ? 'selected' : '';
+                                $lat = $faculty['latitude'] ?? '';
+                                $lng = $faculty['longitude'] ?? '';
+                                echo "<option value='" . (int)$faculty['faculty_id'] . "' data-lat='" . htmlspecialchars($lat) . "' data-lng='" . htmlspecialchars($lng) . "' data-name='" . htmlspecialchars($displayName) . "' $selected>" . htmlspecialchars($displayName) . "</option>";
                             }
                             ?>
                         </select>
-                        <small class="form-hint">Faculty where the item is located</small>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="latitude">
-                            <i class="bi bi-compass"></i> Latitude
-                        </label>
-                        <input type="text" id="latitude" name="latitude" value="<?php echo htmlspecialchars($item['latitude'] ?? ''); ?>" placeholder="e.g., 6.1167" step="any">
-                        <small class="form-hint">Click on map to set coordinates</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="longitude">
-                            <i class="bi bi-compass"></i> Longitude
-                        </label>
-                        <input type="text" id="longitude" name="longitude" value="<?php echo htmlspecialchars($item['longitude'] ?? ''); ?>" placeholder="e.g., 102.2833" step="any">
-                        <small class="form-hint">Click on map to set coordinates</small>
+                        <small class="form-hint">Faculty coordinates will auto-load</small>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group full-width">
                         <label>
-                            <i class="bi bi-map"></i> Set Location on Map
+                            <i class="bi bi-map"></i> Faculty Location
                         </label>
                         <div id="locationMap" style="width: 100%; height: 400px; border-radius: 8px; border: 1px solid #ddd;"></div>
-                        <small class="form-hint">Click anywhere on the map to set the item's location</small>
+                        <small class="form-hint">Map will automatically show selected faculty location</small>
                     </div>
                 </div>
 
@@ -247,59 +231,67 @@ if ($stmt) {
     let map, marker;
     
     function initMap() {
-        // Default location (Kota Bharu, Kelantan, Malaysia)
-        const defaultLocation = { lat: 6.1167, lng: 102.2833 };
+        // Default location (UPSI)
+        const defaultLocation = { lat: 3.685515, lng: 101.524744};
         
         map = new google.maps.Map(document.getElementById('locationMap'), {
-            zoom: 13,
+            zoom: 15,
             center: defaultLocation,
             mapTypeControl: true,
-            streetViewControl: true
+            streetViewControl: true,
+            gestureHandling: 'greedy'
         });
         
-        // Add click listener to map
-        map.addListener('click', (event) => {
-            placeMarker(event.latLng);
-        });
-        
-        // Check if there are existing coordinates
+        // Check if there are existing coordinates from item
         const latInput = document.getElementById('latitude');
         const lngInput = document.getElementById('longitude');
         
-        if (latInput.value && lngInput.value) {
-            const existingLocation = {
-                lat: parseFloat(latInput.value),
-                lng: parseFloat(lngInput.value)
-            };
-            map.setCenter(existingLocation);
-            placeMarker(new google.maps.LatLng(existingLocation.lat, existingLocation.lng));
+        // Load from selected faculty on page load
+        const select = document.getElementById('faculty_id');
+        if (select && select.selectedIndex > 0) {
+            updateMapFromFaculty(select.value);
         }
     }
     
-    function placeMarker(location) {
-        if (marker) {
-            marker.setPosition(location);
-        } else {
-            marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                draggable: true,
-                animation: google.maps.Animation.DROP
-            });
-            
-            // Update coordinates when marker is dragged
-            marker.addListener('dragend', () => {
-                updateCoordinates(marker.getPosition());
-            });
-        }
+    function updateMapFromFaculty(facultyId) {
+        const select = document.getElementById('faculty_id');
+        const selectedOption = select.options[select.selectedIndex];
         
-        updateCoordinates(location);
-        map.panTo(location);
-    }
-    
-    function updateCoordinates(location) {
-        document.getElementById('latitude').value = location.lat().toFixed(6);
-        document.getElementById('longitude').value = location.lng().toFixed(6);
+        const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+        const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+        const facultyName = selectedOption.getAttribute('data-name');
+        
+        if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+            const location = { lat: lat, lng: lng };
+            
+            // Update coordinate inputs
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            
+            // Place marker and center map
+            if (marker) {
+                marker.setPosition(location);
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    title: facultyName
+                });
+            }
+            
+            map.setCenter(location);
+            map.setZoom(17);
+        } else {
+            // Clear if no coordinates
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            if (marker) {
+                marker.setMap(null);
+                marker = null;
+            }
+            alert('This faculty does not have coordinates set in the database.');
+        }
     }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEWZ4A9Tzq8j7Ud6r4tHhoHSLMqJbPonY&callback=initMap"></script>

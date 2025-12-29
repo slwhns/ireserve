@@ -26,11 +26,12 @@ $like = '%' . $q . '%';
 
 // Use prepared statement with faculty filter
 if ($adminFacultyId) {
-    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.location, i.status, i.image_url 
+    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.status, i.image_url,
+                   CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location
             FROM inventory_items i
-            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
-            WHERE (i.name LIKE ? OR i.sku LIKE ? OR i.location LIKE ?) 
-            AND f.faculty_id = ?
+            JOIN faculties f ON i.faculty_id = f.faculty_id
+            WHERE (i.name LIKE ? OR i.sku LIKE ? OR CONCAT(f.faculty_name, ' (', f.faculty_code, ')') LIKE ?) 
+            AND i.faculty_id = ?
             ORDER BY i.item_id DESC LIMIT 50";
     
     $stmt = $conn->prepare($sql);

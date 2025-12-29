@@ -105,7 +105,8 @@ if ($user_id > 0) {
             <div class="popular_grid" id="resultsGrid">
                 <?php
                 // Fetch popular items based on booking count
-                $sql = "SELECT i.item_id, i.name, i.location, i.image_url, i.quantity, i.status,
+                $sql = "SELECT i.item_id, i.name, i.image_url, i.quantity, i.status,
+                        CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location,
                                COALESCE(c.name, 'Uncategorized') AS category_name,
                                COALESCE((
                                    SELECT SUM(b.qty)
@@ -119,6 +120,7 @@ if ($user_id > 0) {
                                ), 0) AS booking_count
                         FROM inventory_items i
                         LEFT JOIN categories c ON i.category_id = c.category_id
+                        LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
                         WHERE (SELECT COUNT(*) FROM bookings b2 WHERE b2.item_id = i.item_id) >= 1
                         ORDER BY booking_count DESC, i.item_id DESC
                         LIMIT 12";

@@ -39,10 +39,11 @@ $sql = "SELECT
             b.created_at,
             i.name AS item_name, 
             i.sku AS item_sku, 
-            i.location AS item_location, 
+            CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS item_location, 
             i.image_url AS item_image
         FROM bookings b
         LEFT JOIN inventory_items i ON i.item_id = b.item_id
+        LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
         WHERE $where
         ORDER BY b.created_at DESC";
 

@@ -91,7 +91,7 @@ if ($catResult) {
                         'category_in_use' => 'Cannot delete category while it has items.',
                         'wrong_password' => 'Current password is incorrect.',
                         'password_mismatch' => 'New passwords do not match.',
-                        'weak_password' => 'Password must be at least 6 characters.'
+                        'weak_password' => 'Password must be at least 8 characters.'
                     ];
                     $messageText = $errorMessages[$error] ?? 'An error occurred. Please try again.';
                     $messageType = 'error';

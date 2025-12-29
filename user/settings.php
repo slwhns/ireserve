@@ -172,8 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($new_password !== $confirm_password) {
             $error_message = "New passwords do not match.";
-        } elseif (strlen($new_password) < 6) {
-            $error_message = "Password must be at least 6 characters long.";
+        } elseif (strlen($new_password) < 8) {
+            $error_message = "Password must be at least 8 characters long.";
         } else {
             // Verify current password
             $pwd_stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
@@ -325,11 +325,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-group">
                         <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" minlength="6" required>
+                        <input type="password" id="new_password" name="new_password" minlength="8" required>
+                        <small>Minimum 8 characters</small>
                     </div>
                     <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" minlength="6" required>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
                     </div>
                     <button type="submit" name="change_password" class="btn btn-primary">
                         <i class="ri-key-line"></i> Change Password

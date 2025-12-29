@@ -26,7 +26,9 @@ $like = '%' . $q . '%';
 // Search items - show all items regardless of status
 // If dates provided, calculate availability for those specific dates
 if ($start_date && $end_date) {
-    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.location, i.status, i.image_url, c.name AS category_name,
+    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.status, i.image_url, 
+                   c.name AS category_name,
+                   CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location,
                    COALESCE((
                        SELECT SUM(b.qty)
                        FROM bookings b
@@ -37,7 +39,8 @@ if ($start_date && $end_date) {
                    ), 0) AS qty_booked
             FROM inventory_items i
             LEFT JOIN categories c ON i.category_id = c.category_id
-            WHERE (i.name LIKE ? OR i.sku LIKE ? OR i.location LIKE ? OR c.name LIKE ?)
+            LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
+            WHERE (i.name LIKE ? OR i.sku LIKE ? OR CONCAT(f.faculty_name, ' (', f.faculty_code, ')') LIKE ? OR c.name LIKE ?)
             ORDER BY i.item_id DESC LIMIT 20";
 
     $stmt = $conn->prepare($sql);
@@ -48,7 +51,9 @@ if ($start_date && $end_date) {
     $stmt->bind_param('ssssss', $end_date, $start_date, $like, $like, $like, $like);
 } else {
     // No dates provided, use old logic (count all taken bookings)
-    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.location, i.status, i.image_url, c.name AS category_name,
+    $sql = "SELECT i.item_id, i.name, i.sku, i.quantity, i.status, i.image_url, 
+                   c.name AS category_name,
+                   CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location,
                    COALESCE((
                        SELECT SUM(b.qty)
                        FROM bookings b
@@ -56,7 +61,8 @@ if ($start_date && $end_date) {
                    ), 0) AS qty_booked
             FROM inventory_items i
             LEFT JOIN categories c ON i.category_id = c.category_id
-            WHERE (i.name LIKE ? OR i.sku LIKE ? OR i.location LIKE ? OR c.name LIKE ?)
+            LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
+            WHERE (i.name LIKE ? OR i.sku LIKE ? OR CONCAT(f.faculty_name, ' (', f.faculty_code, ')') LIKE ? OR c.name LIKE ?)
             ORDER BY i.item_id DESC LIMIT 20";
 
     $stmt = $conn->prepare($sql);

@@ -20,37 +20,6 @@ function togglePassword(inputId, iconElement) {
 
 // Profile Dropdown Toggle
 document.addEventListener('DOMContentLoaded', function() {
-    // Dark Mode Toggle
-    const darkMode = localStorage.getItem('userDarkMode');
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    
-    // Apply saved preference on page load
-    if (darkMode === 'enabled') {
-        document.body.classList.add('dark-mode');
-        if (darkModeToggle) {
-            darkModeToggle.querySelector('i').classList.remove('ri-moon-line');
-            darkModeToggle.querySelector('i').classList.add('ri-sun-line');
-        }
-    }
-    
-    // Toggle dark mode
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
-            const icon = this.querySelector('i');
-            
-            // Update icon
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('ri-moon-line');
-                icon.classList.add('ri-sun-line');
-                localStorage.setItem('userDarkMode', 'enabled');
-            } else {
-                icon.classList.remove('ri-sun-line');
-                icon.classList.add('ri-moon-line');
-                localStorage.setItem('userDarkMode', null);
-            }
-        });
-    }
 
     const profilePic = document.getElementById('profilePic');
     const dropdownMenu = document.getElementById('dropdownMenu');

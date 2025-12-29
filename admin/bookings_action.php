@@ -36,8 +36,7 @@ $adminFacultyId = $_SESSION['faculty_id'] ?? null;
 if ($adminFacultyId) {
   $checkStmt = $conn->prepare("SELECT b.ref_code FROM bookings b 
                                JOIN inventory_items i ON i.item_id = b.item_id 
-                               JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                               WHERE b.ref_code = ? AND f.faculty_id = ?");
+                               WHERE b.ref_code = ? AND i.faculty_id = ?");
   $checkStmt->bind_param("si", $ref, $adminFacultyId);
   $checkStmt->execute();
   $checkResult = $checkStmt->get_result();

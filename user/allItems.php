@@ -50,7 +50,7 @@ if ($category_filter > 0) {
 }
 
 if (!empty($search_query)) {
-    $where_conditions[] = "(i.name LIKE ? OR i.sku LIKE ? OR i.location LIKE ?)";
+    $where_conditions[] = "(i.name LIKE ? OR i.sku LIKE ? OR f.faculty_name LIKE ?)";
     $search_param = "%{$search_query}%";
     $params[] = $search_param;
     $params[] = $search_param;
@@ -61,7 +61,7 @@ if (!empty($search_query)) {
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get total count
-$count_sql = "SELECT COUNT(*) as total FROM inventory_items i WHERE {$where_clause}";
+$count_sql = "SELECT COUNT(*) as total FROM inventory_items i LEFT JOIN faculties f ON i.faculty_id = f.faculty_id WHERE {$where_clause}";
 if (!empty($params)) {
     $count_stmt = $conn->prepare($count_sql);
     $count_stmt->bind_param($types, ...$params);
@@ -76,10 +76,12 @@ if (!empty($params)) {
 $total_pages = ceil($total_items / $items_per_page);
 
 // Fetch items
-$sql = "SELECT i.item_id, i.name, i.sku, i.location, i.image_url, i.quantity, i.status,
-               COALESCE(c.name, 'Uncategorized') AS category_name
+$sql = "SELECT i.item_id, i.name, i.sku, i.image_url, i.quantity, i.status,
+               COALESCE(c.name, 'Uncategorized') AS category_name,
+               CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location
         FROM inventory_items i
         LEFT JOIN categories c ON i.category_id = c.category_id
+        LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
         WHERE {$where_clause}
         ORDER BY i.item_id DESC
         LIMIT ? OFFSET ?";

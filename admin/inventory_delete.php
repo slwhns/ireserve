@@ -23,8 +23,7 @@ $adminFacultyId = $_SESSION['faculty_id'] ?? null;
 // Get item details and verify it belongs to admin's faculty
 if ($adminFacultyId) {
     $sql = "SELECT i.image_url FROM inventory_items i 
-            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-            WHERE i.item_id = ? AND f.faculty_id = ?";
+            WHERE i.item_id = ? AND i.faculty_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $item_id, $adminFacultyId);
 } else {
@@ -33,7 +32,6 @@ if ($adminFacultyId) {
 }
 
 if ($stmt) {
-    $stmt->bind_param("i", $item_id);
     $stmt->execute();
     $result = $stmt->get_result();
     

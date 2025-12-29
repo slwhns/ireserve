@@ -111,7 +111,7 @@ if ($stmtU) {
                             'missing_fields' => 'Please fill in all required fields.',
                             'invalid_email' => 'Invalid email format.',
                             'email_exists' => 'Email already exists.',
-                            'weak_password' => 'Password must be at least 6 characters.',
+                            'weak_password' => 'Password must be at least 8 characters.',
                             'prepare_failed' => 'System error. Please try again.'
                         ];
                         $message = $errorMessages[$error] ?? 'An error occurred. Please try again.';

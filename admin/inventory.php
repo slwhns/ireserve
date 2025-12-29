@@ -15,6 +15,25 @@ $currentPage = 'inventory';
         <link rel="stylesheet" href="/ireserve/assets/css/admin.css?v=10">
         <link rel="stylesheet" href="/ireserve/assets/css/inventory.css?v=6">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <style>
+            /* View button clean design */
+            .action-col a.view {
+                background: #5570f1 !important;
+                color: white !important;
+                padding: 8px 16px !important;
+                border-radius: 6px !important;
+                text-decoration: none !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                font-weight: 500 !important;
+                font-size: 0.9rem !important;
+                transition: background 0.2s ease !important;
+            }
+            .action-col a.view:hover {
+                background: #3d5ee1 !important;
+            }
+        </style>
     </head>
     <body>
 
@@ -92,7 +111,6 @@ $currentPage = 'inventory';
                                     <td>Image</td>
                                     <td>Item Name</td>
                                     <td>Category</td>
-                                    <td>Location</td>
                                     <td>Available</td>
                                     <td>Total Qty</td>
                                     <td>Status</td>
@@ -113,8 +131,7 @@ $currentPage = 'inventory';
                                 $adminFacultyId = $_SESSION['faculty_id'] ?? null;
                                 if ($adminFacultyId) {
                                     $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM inventory_items i 
-                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                                                            WHERE f.faculty_id = ?");
+                                                            WHERE i.faculty_id = ?");
                                     $stmt->bind_param('i', $adminFacultyId);
                                     $stmt->execute();
                                     $totalRes = $stmt->get_result();
@@ -133,7 +150,7 @@ $currentPage = 'inventory';
                                 // Available = total quantity - sum of quantities from active (status='taken') bookings
                                 // Filter by admin's faculty
                                 if ($adminFacultyId) {
-                                    $stmt = $conn->prepare("SELECT i.*, c.name AS category_name,
+                                    $stmt = $conn->prepare("SELECT i.*, c.name AS category_name, f.faculty_name, f.faculty_code,
                                                                 COALESCE((
                                                                     SELECT SUM(b.qty)
                                                                     FROM bookings b
@@ -141,8 +158,8 @@ $currentPage = 'inventory';
                                                                 ), 0) AS qty_taken
                                                             FROM inventory_items i
                                                             JOIN categories c ON i.category_id = c.category_id
-                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location
-                                                            WHERE f.faculty_id = ?
+                                                            JOIN faculties f ON i.faculty_id = f.faculty_id
+                                                            WHERE i.faculty_id = ?
                                                             ORDER BY i.item_id DESC
                                                             LIMIT ? OFFSET ?");
                                     if ($stmt) {
@@ -170,16 +187,14 @@ $currentPage = 'inventory';
                                     <td><img src="<?php echo $row['image_url'] ?: 'assets/images/no-image.png'; ?>" alt="item" class="item-img"></td>
                                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['location'] ?? 'Not specified'); ?></td>
                                     <td><?php echo $available; ?></td>
                                     <td><?php echo $total_qty; ?></td>
                                     <td><span class="status <?php echo htmlspecialchars($current_status); ?>"><?php echo ucfirst($current_status); ?></span></td>
                                     <td>
                                         <div class="action-col">
-                                            <a href="/ireserve/admin/inventory_edit.php?id=<?php echo (int)$row['item_id']; ?>&page=<?php echo $page; ?>" class="edit">Edit</a>
-                                            <a href="/ireserve/admin/inventory_delete.php?id=<?php echo (int)$row['item_id']; ?>"
-                                               class="delete"
-                                               onclick="return confirm('Are you sure you want to delete this item? This action cannot be undone.');">Delete</a>
+                                            <a href="/ireserve/admin/inventory_view.php?id=<?php echo (int)$row['item_id']; ?>&page=<?php echo $page; ?>" class="view">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -249,8 +264,7 @@ $currentPage = 'inventory';
                                 <?php
                                 if ($adminFacultyId) {
                                     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM inventory_items i 
-                                                            JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                                                            WHERE f.faculty_id = ?");
+                                                            WHERE i.faculty_id = ?");
                                     $stmt->bind_param('i', $adminFacultyId);
                                     $stmt->execute();
                                     $totalResult = $stmt->get_result();
@@ -277,9 +291,7 @@ $currentPage = 'inventory';
                                 if ($adminFacultyId) {
                                     $stmt = $conn->prepare("SELECT c.*, COUNT(i.item_id) as item_count 
                                                            FROM categories c 
-                                                           LEFT JOIN inventory_items i ON c.category_id = i.category_id 
-                                                           LEFT JOIN faculties f ON CONCAT(f.faculty_name, ' (', f.faculty_code, ')') COLLATE utf8mb4_unicode_ci = i.location 
-                                                           WHERE i.item_id IS NULL OR f.faculty_id = ?
+                                                           LEFT JOIN inventory_items i ON c.category_id = i.category_id AND i.faculty_id = ?
                                                            GROUP BY c.category_id 
                                                            ORDER BY c.name");
                                     $stmt->bind_param('i', $adminFacultyId);

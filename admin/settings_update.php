@@ -95,7 +95,7 @@ if ($action === 'change_password') {
         exit();
     }
 
-    if (strlen($newPassword) < 6) {
+    if (strlen($newPassword) < 8) {
         header("Location: settings.php?error=weak_password");
         exit();
     }
