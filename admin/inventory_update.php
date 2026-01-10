@@ -56,8 +56,6 @@ $description = trim($_POST['description']);
 $quantity = (int)$_POST['quantity'];
 $status = trim($_POST['status']);
 $faculty_id = !empty($_POST['faculty_id']) ? (int)$_POST['faculty_id'] : null;
-$latitude = !empty($_POST['latitude']) ? (float)$_POST['latitude'] : null;
-$longitude = !empty($_POST['longitude']) ? (float)$_POST['longitude'] : null;
 $current_image = $_POST['current_image'];
 $image_url = $current_image; // Keep current image by default
 
@@ -123,8 +121,6 @@ $sql = "UPDATE inventory_items
             quantity = ?, 
             status = ?, 
             faculty_id = ?,
-            latitude = ?,
-            longitude = ?,
             image_url = ?,
             updated_at = CURRENT_TIMESTAMP 
         WHERE item_id = ?";
@@ -133,7 +129,7 @@ $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     $stmt->bind_param(
-        "sississddsi", 
+        "sississsi", 
         $name, 
         $category_id, 
         $sku, 
@@ -141,8 +137,6 @@ if ($stmt) {
         $quantity, 
         $status, 
         $faculty_id,
-        $latitude,
-        $longitude,
         $image_url,
         $item_id
     );

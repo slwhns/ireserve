@@ -418,16 +418,16 @@ if ($preselected_item_id > 0) {
                 return;
             }
 
-            // Calculate maximum booked quantity during the selected period
-            let maxBooked = 0;
+            // Calculate total booked quantity during the selected period
+            let totalBooked = 0;
             bookedDates.forEach(range => {
                 // Check if ranges overlap
                 if (startDate <= range.end && endDate >= range.start) {
-                    maxBooked = Math.max(maxBooked, range.quantity);
+                    totalBooked += range.quantity;
                 }
             });
 
-            const available = itemTotalQuantity - maxBooked;
+            const available = itemTotalQuantity - totalBooked;
             availableQtyHint.textContent = 'Available for selected dates: ' + available + ' units';
             quantityField.max = available;
 

@@ -39,7 +39,7 @@ if ($user_id > 0) {
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/ireserve/assets/css/style.css?v=2">
     <link rel="stylesheet" href="/ireserve/assets/css/user_page.css">
-    <link rel="stylesheet" href="/ireserve/assets/css/about.css">
+    <link rel="stylesheet" href="/ireserve/assets/css/about.css?v=2">
     <link rel="stylesheet" href="/ireserve/assets/css/settings.css">
 </head>
 <body>
@@ -115,23 +115,47 @@ if ($user_id > 0) {
             <p><strong>5. Return:</strong> Return the item.</p>
         </div>
 
-        <div class="contact-info">
-            <h3><i class="ri-mail-line"></i> Get In Touch</h3>
-            <div class="contact-item">
-                <i class="ri-mail-send-line"></i>
-                <p><strong>Email:</strong> support@ireserve.com</p>
-            </div>
-            <div class="contact-item">
-                <i class="ri-phone-line"></i>
-                <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-            </div>
-            <div class="contact-item">
-                <i class="ri-map-pin-line"></i>
-                <p><strong>Address:</strong> 123 Reservation St, Booking City, BC 12345</p>
-            </div>
-            <div class="contact-item">
-                <i class="ri-time-line"></i>
-                <p><strong>Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM</p>
+        <div class="about-section">
+            <h2><i class="ri-mail-line"></i> Contact Information</h2>
+            <p>For inquiries and support regarding facility and equipment reservations, please contact the respective department administrators:</p>
+            
+            <div class="departments-contact">
+                <?php
+                // Fetch all faculties with their information
+                $faculties_query = "SELECT faculty_id, faculty_name, faculty_code, office_number FROM faculties ORDER BY faculty_name";
+                $faculties_result = $conn->query($faculties_query);
+                
+                if ($faculties_result && $faculties_result->num_rows > 0):
+                    while ($faculty = $faculties_result->fetch_assoc()):
+                        $display_name = htmlspecialchars($faculty['faculty_name']);
+                        if (!empty($faculty['faculty_code'])) {
+                            $display_name .= ' (' . htmlspecialchars($faculty['faculty_code']) . ')';
+                        }
+                ?>
+                    <div class="department-card">
+                        <h3><i class="ri-building-line"></i> <?php echo $display_name; ?></h3>
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <i class="ri-mail-line"></i>
+                                <p><strong>Email:</strong> <?php echo strtolower(str_replace(' ', '', $faculty['faculty_code'] ?? 'dept')); ?>@upsi.edu.my</p>
+                            </div>
+                            <?php if (!empty($faculty['office_number'])): ?>
+                            <div class="contact-item">
+                                <i class="ri-phone-line"></i>
+                                <p><strong>Office Phone:</strong> <?php echo htmlspecialchars($faculty['office_number']); ?></p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php 
+                    endwhile;
+                else:
+                ?>
+                    <div class="contact-item">
+                        <i class="ri-information-line"></i>
+                        <p>No department information available at the moment.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -19,6 +19,20 @@ $adminName = $_SESSION['name'] ?? '';
 $adminEmail = $_SESSION['email'] ?? '';
 $adminPicture = $_SESSION['picture_url'] ?? '';
 $adminPhoneNumber = $_SESSION['phone_number'] ?? '';
+$adminFacultyId = $_SESSION['faculty_id'] ?? null;
+
+// Fetch faculty office number
+$facultyOfficeNumber = '';
+if ($adminFacultyId) {
+    $stmt = $conn->prepare("SELECT office_number FROM faculties WHERE faculty_id = ?");
+    $stmt->bind_param('i', $adminFacultyId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $facultyOfficeNumber = $row['office_number'] ?? '';
+    }
+    $stmt->close();
+}
 
 // Fetch categories for management
 $categories = [];
@@ -119,8 +133,13 @@ if ($catResult) {
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="phone_number">Office No.</label>
-                                    <input type="text" id="phone_number" name="phone_number" value="<?= h($adminPhoneNumber) ?>" required>
+                                    <label for="office_number">Office No.</label>
+                                    <input type="text" id="office_number" name="office_number" value="<?= h($facultyOfficeNumber) ?>" placeholder="e.g., +605-450 5255 /5286">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone_number">Phone No.</label>
+                                    <input type="text" id="act number</small>phone_number" name="phone_number" value="<?= h($adminPhoneNumber) ?>" placeholder="e.g., 012-345-6789">
                                 </div>
 
                                 <div class="form-group">

@@ -59,8 +59,9 @@ if ($action === 'update_profile') {
 
     // Prepare phone number variable
     $phoneNumber = $_POST['phone_number'] ?? '';
+    $officeNumber = $_POST['office_number'] ?? '';
 
-    // Update database
+    // Update user profile (personal info)
     $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, picture_url = ?, phone_number = ? WHERE id = ?");
     $stmt->bind_param('ssssi', $name, $email, $picturePath, $phoneNumber, $adminId);
     
@@ -71,11 +72,21 @@ if ($action === 'update_profile') {
         $_SESSION['picture_url'] = $picturePath;
         $_SESSION['phone_number'] = $phoneNumber;
         
+        $stmt->close();
+        
+        // Update faculty office number if admin has faculty_id
+        $facultyId = $_SESSION['faculty_id'] ?? null;
+        if ($facultyId) {
+            $stmt2 = $conn->prepare("UPDATE faculties SET office_number = ? WHERE faculty_id = ?");
+            $stmt2->bind_param('si', $officeNumber, $facultyId);
+            $stmt2->execute();
+            $stmt2->close();
+        }
+        
         header("Location: settings.php?success=profile_updated");
     } else {
         header("Location: settings.php?error=update_failed");
     }
-    $stmt->close();
     exit();
 }
 
