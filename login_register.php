@@ -39,13 +39,33 @@ if (isset($_POST['register'])) {
         $checkEmail->close();
     } else {
         $checkEmail->close();
-        // Set default profile picture
-        $default_picture = '/ireserve/assets/images/user.png';
-        // Insert new user using prepared statement
-        $stmt = $conn->prepare("INSERT INTO users (name, matrics_number, phone_number, program, faculty, email, password, role, picture_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssssssss', $name, $matrics_number, $phone_number, $program, $faculty, $email, $password, $role, $default_picture);
-        $stmt->execute();
-        $stmt->close();
+        
+        // Get faculty_id from faculty code
+        $facultyStmt = $conn->prepare("SELECT faculty_id FROM faculties WHERE faculty_code = ?");
+        $facultyStmt->bind_param('s', $faculty);
+        $facultyStmt->execute();
+        $facultyResult = $facultyStmt->get_result();
+        
+        if ($facultyResult->num_rows > 0) {
+            $facultyData = $facultyResult->fetch_assoc();
+            $faculty_id = $facultyData['faculty_id'];
+            $facultyStmt->close();
+            
+            // Set default profile picture
+            $default_picture = '/ireserve/assets/images/user.png';
+            // Insert new user using prepared statement
+            $stmt = $conn->prepare("INSERT INTO users (name, matrics_number, phone_number, program, faculty_id, email, password, role, picture_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('ssssissss', $name, $matrics_number, $phone_number, $program, $faculty_id, $email, $password, $role, $default_picture);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            $facultyStmt->close();
+            session_start();
+            $_SESSION['register_error'] = "Invalid faculty selected.";
+            $_SESSION['active_form'] = 'register';
+            header("Location: index.php");
+            exit();
+        }
         // Set session for success popup
         session_start();
         $_SESSION['register_success'] = true;
