@@ -39,7 +39,7 @@ $preselected_quantity = isset($_GET['quantity']) ? (int)$_GET['quantity'] : 0;
 
 if ($preselected_item_id > 0) {
     $stmt = $conn->prepare("SELECT i.name, i.quantity, 
-                            COALESCE((SELECT SUM(b.qty) FROM bookings b WHERE b.item_id = i.item_id AND b.status = 'taken'), 0) AS qty_taken
+                            COALESCE((SELECT SUM(b.qty) FROM bookings b WHERE b.item_id = i.item_id AND b.status = 'collect'), 0) AS qty_taken
                             FROM inventory_items i WHERE i.item_id = ?");
     $stmt->bind_param('i', $preselected_item_id);
     $stmt->execute();

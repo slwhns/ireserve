@@ -48,7 +48,7 @@ $sql = "SELECT
             b.purpose,
             i.name AS item_name,
             i.quantity,
-            COALESCE((SELECT SUM(qty) FROM bookings WHERE item_id = b.item_id AND status = 'taken'), 0) AS qty_taken
+            COALESCE((SELECT SUM(qty) FROM bookings WHERE item_id = b.item_id AND status = 'collect'), 0) AS qty_taken
         FROM bookings b
         LEFT JOIN inventory_items i ON i.item_id = b.item_id
         WHERE b.ref_code = ? AND b.user_id = ?";

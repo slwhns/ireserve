@@ -147,14 +147,14 @@ $currentPage = 'inventory';
                                 if ($page > $totalPages) { $page = $totalPages; $offset = ($page - 1) * $perPage; }
 
                                 // Fetch paginated items with category names and currently taken quantity
-                                // Available = total quantity - sum of quantities from active (status='taken') bookings
+                                // Available = total quantity - sum of quantities from active (status='collect') bookings
                                 // Filter by admin's faculty
                                 if ($adminFacultyId) {
                                     $stmt = $conn->prepare("SELECT i.*, c.name AS category_name, f.faculty_name, f.faculty_code,
                                                                 COALESCE((
                                                                     SELECT SUM(b.qty)
                                                                     FROM bookings b
-                                                                    WHERE b.item_id = i.item_id AND b.status = 'taken'
+                                                                    WHERE b.item_id = i.item_id AND b.status = 'collect'
                                                                 ), 0) AS qty_taken
                                                             FROM inventory_items i
                                                             JOIN categories c ON i.category_id = c.category_id

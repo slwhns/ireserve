@@ -57,7 +57,7 @@ if ($start_date && $end_date) {
                    COALESCE((
                        SELECT SUM(b.qty)
                        FROM bookings b
-                       WHERE b.item_id = i.item_id AND b.status = 'taken'
+                       WHERE b.item_id = i.item_id AND b.status = 'collect'
                    ), 0) AS qty_booked
             FROM inventory_items i
             LEFT JOIN categories c ON i.category_id = c.category_id

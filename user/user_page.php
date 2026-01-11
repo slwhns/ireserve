@@ -111,7 +111,7 @@ if ($user_id > 0) {
                                COALESCE((
                                    SELECT SUM(b.qty)
                                    FROM bookings b
-                                   WHERE b.item_id = i.item_id AND b.status = 'taken'
+                                   WHERE b.item_id = i.item_id AND b.status = 'collect'
                                ), 0) AS qty_taken,
                                COALESCE((
                                    SELECT COUNT(*)

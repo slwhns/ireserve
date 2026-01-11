@@ -87,7 +87,7 @@ if ($user_id > 0) {
             $mapSql = "SELECT i.item_id, i.name, i.image_url, i.quantity, i.status,
                               CONCAT(f.faculty_name, ' (', f.faculty_code, ')') AS location,
                               f.latitude, f.longitude,
-                              COALESCE((SELECT SUM(qty) FROM bookings WHERE item_id = i.item_id AND status = 'taken'), 0) AS qty_taken
+                              COALESCE((SELECT SUM(qty) FROM bookings WHERE item_id = i.item_id AND status = 'collect'), 0) AS qty_taken
                        FROM inventory_items i
                        LEFT JOIN faculties f ON i.faculty_id = f.faculty_id
                        WHERE f.latitude IS NOT NULL AND f.longitude IS NOT NULL 
