@@ -102,7 +102,7 @@ $pages = max(1, (int)ceil($total / $perPage));
 
 /* Helper to keep filters in links */
 $buildLink = function(int $p) use ($search, $status){
-    return 'bookings.php?' . http_build_query(array_filter(['q'=>$search,'status'=>$status,'location'=>$location,'page'=>$p]));
+    return 'bookings.php?' . http_build_query(array_filter(['q'=>$search,'status'=>$status,'page'=>$p]));
 };
 
 $showStart = $total > 0 ? ($offset + 1) : 0;

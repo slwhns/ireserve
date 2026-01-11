@@ -184,15 +184,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p><strong>Requested:</strong> ${requestedQty} units</p>
                     ${canBook ? 
                         `<p style="color: green;"><i class="ri-checkbox-circle-line"></i> <strong>Available for your booking</strong></p>
-                         <form action="/ireserve/user/submit_booking.php" method="POST" style="margin-top: 10px;">
-                            <input type="hidden" name="item_id" value="${item.id}">
-                            <input type="hidden" name="start_date" value="${startDate}">
-                            <input type="hidden" name="end_date" value="${endDate}">
-                            <input type="hidden" name="quantity" value="${requestedQty}">
-                            <button type="submit" class="btn-book-item">
-                                <i class="ri-bookmark-line"></i> Book This Item
-                            </button>
-                         </form>` 
+                         <a href="/ireserve/user/bookingForm.php?item_id=${item.id}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&quantity=${requestedQty}" 
+                            class="btn-book-item" style="display: inline-block; text-decoration: none; margin-top: 10px;">
+                            <i class="ri-bookmark-line"></i> Book This Item
+                         </a>` 
                         : 
                         (status === 'maintenance' || status === 'unavailable') ?
                         `<p style="color: orange;"><i class="ri-tools-line"></i> <strong>Item is currently ${status}</strong></p>

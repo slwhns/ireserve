@@ -33,6 +33,9 @@ if ($user_id > 0) {
 $preselected_item_id = isset($_GET['item_id']) ? (int)$_GET['item_id'] : 0;
 $preselected_item_name = '';
 $preselected_available = 0;
+$preselected_start_date = isset($_GET['start_date']) ? trim($_GET['start_date']) : '';
+$preselected_end_date = isset($_GET['end_date']) ? trim($_GET['end_date']) : '';
+$preselected_quantity = isset($_GET['quantity']) ? (int)$_GET['quantity'] : 0;
 
 if ($preselected_item_id > 0) {
     $stmt = $conn->prepare("SELECT i.name, i.quantity, 
@@ -140,13 +143,13 @@ if ($preselected_item_id > 0) {
                 <div class="form-row">
                     <div class="form-group">
                         <label for="startDate"><i class="ri-calendar-line"></i> Start Date *</label>
-                        <input type="text" id="startDate" name="start_date" required readonly />
+                        <input type="text" id="startDate" name="start_date" value="<?php echo htmlspecialchars($preselected_start_date); ?>" required readonly />
                         <small class="form-hint">Select the start date for your booking</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endDate"><i class="ri-calendar-check-line"></i> End Date *</label>
-                        <input type="text" id="endDate" name="end_date" required readonly />
+                        <input type="text" id="endDate" name="end_date" value="<?php echo htmlspecialchars($preselected_end_date); ?>" required readonly />
                         <small class="form-hint">Select the end date for your booking</small>
                     </div>
                 </div>
@@ -158,6 +161,7 @@ if ($preselected_item_id > 0) {
                                id="quantity" 
                                name="quantity" 
                                min="1" 
+                               value="<?php echo $preselected_quantity > 0 ? $preselected_quantity : ''; ?>" 
                                <?php if ($preselected_available > 0) echo 'max="' . $preselected_available . '"'; ?>
                                required />
                         <small class="form-hint" id="availableQty">

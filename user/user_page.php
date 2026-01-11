@@ -63,7 +63,7 @@ if ($user_id > 0) {
                     <p>Browse, Book, Approve, Take</p>
                 </div>
             <div class="booking_container" id="booking">
-            <form action="/ireserve/user/submit_booking.php" method="POST" id="bookingForm">
+            <form id="bookingForm">
             <div class="form_group">
                     <div class="input_group">
                         <input type="text" id="itemSearch" name="item_name" autocomplete="off" required />
@@ -202,7 +202,7 @@ if ($user_id > 0) {
         <!-- Main Script - Load first -->
         <script src="/ireserve/assets/js/script.js"></script>
         <!-- User Booking Functionality -->
-        <script src="/ireserve/assets/js/user_booking.js"></script>
+        <script src="/ireserve/assets/js/user_booking.js?v=2"></script>
     </body>
 
 </html>
